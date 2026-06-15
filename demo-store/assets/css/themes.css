@@ -1,0 +1,74 @@
+/* ============================================================================
+ * HMG StoreForge v9 — Theme / Layout / UI variations (themes.css)
+ * Activated by body classes set in theme-engine.js. Loaded AFTER style.css.
+ * ==========================================================================*/
+
+/* Fonts + density via variables (set by theme-engine.js) */
+body { font-family: var(--font-body, system-ui, sans-serif); }
+h1, h2, h3, h4, .brand-name { font-family: var(--font-head, var(--font-body)); }
+section { padding: calc(54px * var(--density, 1)) 0; }
+
+/* Button shape */
+.btn { border-radius: var(--btn-radius, var(--radius)); }
+
+/* ---------------- UI STYLES ---------------- */
+/* Glass */
+.ui-glass .site-header { background: rgba(255,255,255,.7); backdrop-filter: blur(12px); }
+[data-theme="dark"].ui-glass .site-header,
+.ui-glass[data-theme="dark"] .site-header { background: rgba(19,32,47,.6); }
+.ui-glass .product-card, .ui-glass .about-card, .ui-glass .contact-card {
+  background: rgba(255,255,255,.55); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,.4); }
+[data-theme="dark"] .ui-glass .product-card { background: rgba(19,32,47,.5); }
+
+/* Neumorphism */
+.ui-neumorph .product-card, .ui-neumorph .about-card, .ui-neumorph .contact-card {
+  background: var(--light); box-shadow: 8px 8px 18px rgba(0,0,0,.08), -8px -8px 18px rgba(255,255,255,.7); border: none; }
+.ui-neumorph .btn-primary { box-shadow: 4px 4px 10px rgba(0,0,0,.12), -4px -4px 10px rgba(255,255,255,.6); }
+
+/* Bold (high-contrast, thick borders) */
+.ui-bold .product-card { border: 2px solid var(--text); box-shadow: 6px 6px 0 var(--text); }
+.ui-bold .btn-primary { border: 2px solid var(--text); box-shadow: 3px 3px 0 var(--text); }
+.ui-bold .section-head h2 { text-transform: uppercase; letter-spacing: .02em; }
+
+/* ---------------- PRODUCT CARD STYLES ---------------- */
+.card-border .product-card { box-shadow: none; border: 1px solid var(--border); }
+.card-flat .product-card { box-shadow: none; border: none; background: transparent; }
+.card-flat .pc-body { padding-left: 0; padding-right: 0; }
+.card-overlay .product-card { position: relative; }
+.card-overlay .pc-img { aspect-ratio: 3/4; }
+.card-overlay .pc-body { position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,.8)); color: #fff; }
+.card-overlay .pc-name, .card-overlay .pc-cat { color: #fff; }
+.card-overlay .pc-price { color: var(--accent); }
+
+/* ---------------- LAYOUTS ---------------- */
+/* Grid: tighter, more columns */
+.layout-grid .product-grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: .9rem; }
+/* Magazine: large featured first item */
+.layout-magazine .product-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+.layout-magazine .product-card:first-child { grid-column: span 2; grid-row: span 2; }
+@media (max-width: 640px) { .layout-magazine .product-card:first-child { grid-column: span 1; grid-row: span 1; } }
+/* Minimal: airy, no badges clutter */
+.layout-minimal .pc-badge { display: none; }
+.layout-minimal .product-card { box-shadow: none; border: none; }
+.layout-minimal .toolbar { border: none; }
+
+/* ---------------- HERO STYLES ---------------- */
+/* Banner: full-width text over gradient, no image column */
+.hero-banner .hero-inner { grid-template-columns: 1fr; text-align: center; }
+.hero-banner .hero-image { display: none; }
+.hero-banner .hero-tagline { margin-left: auto; margin-right: auto; }
+.hero-banner .hero-trust, .hero-banner .hero-cta { justify-content: center; }
+/* Centered */
+.hero-centered .hero-inner { grid-template-columns: 1fr; text-align: center; max-width: 760px; margin: 0 auto; }
+.hero-centered .hero-image { display: none; }
+.hero-centered .hero-cta, .hero-centered .hero-trust { justify-content: center; }
+/* None: hide hero entirely */
+.hero-none .hero { display: none; }
+
+/* ---------------- ANIMATIONS (subtle, free) ---------------- */
+@media (prefers-reduced-motion: no-preference) {
+  .product-card { transition: transform .18s ease, box-shadow .18s ease; }
+  .reveal { opacity: 0; transform: translateY(14px); transition: .5s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+}
