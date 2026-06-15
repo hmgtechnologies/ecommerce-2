@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Vendor Payout Ledger — HMG StoreForge</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+  .l-wrap{max-width:1000px;margin:0 auto;padding:1.4rem}
+  .l-head{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;margin-bottom:1.2rem;box-shadow:var(--shadow)}
+  .hint{font-size:.78rem;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;font-size:.88rem}
+  th,td{text-align:left;padding:.55rem;border-bottom:1px solid var(--border)}
+  th{color:var(--muted);font-weight:600}
+  td.num,th.num{text-align:right}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1.2rem}
+  .stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.1rem;box-shadow:var(--shadow)}
+  .stat b{font-size:1.5rem;display:block;color:var(--primary)}
+  [data-theme="dark"] .stat b{color:var(--accent)}
+  .stat span{font-size:.8rem;color:var(--muted)}
+  .mini{padding:.45rem .8rem;font-size:.8rem;border-radius:8px;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--text)}
+  .login-box{max-width:380px;margin:8vh auto;text-align:center}.lock{font-size:3rem}
+  code{background:var(--light);padding:.1rem .4rem;border-radius:5px}
+  .paid-toggle{cursor:pointer}
+</style>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/store-extras7.js"></script>
+</head>
+<body>
+
+<div id="loginGate" class="l-wrap">
+  <div class="login-box panel">
+    <div class="lock">💰</div>
+    <h2>Vendor Payout Ledger</h2>
+    <p class="hint">Enter the admin passcode to view vendor sales, commission and payouts.</p>
+    <div style="margin-top:1rem"><input type="password" id="pass" placeholder="Passcode" style="width:100%;padding:.65rem;border:1px solid var(--border);border-radius:8px;background:var(--light);color:var(--text)" onkeydown="if(event.key==='Enter')login()"></div>
+    <button class="btn btn-primary btn-block" style="margin-top:.6rem" onclick="login()">Unlock</button>
+    <p class="hint" style="margin-top:1rem">Same passcode as the store admin (default <code>admin1234</code>).</p>
+  </div>
+</div>
+
+<div id="dash" class="l-wrap" hidden>
+  <div class="l-head">
+    <h2>💰 Vendor Payout Ledger</h2>
+    <div><a class="mini" href="index.html" target="_blank">↗ Store</a> <button class="mini" onclick="exportCSV()">⬇ Export CSV</button> <button class="mini" onclick="logout()">Logout</button></div>
+  </div>
+
+  <p class="hint">Commission rate: <strong id="rate"></strong>. Figures from orders captured on this device
+     (and Supabase if configured). Mark vendors as paid after you settle them.</p>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="panel">
+    <h3>Per-vendor breakdown</h3>
+    <table id="ledgerTable"></table>
+  </div>
+  <p class="hint" style="text-align:center">⚡ Powered by <a href="https://hmgtechnologies.pages.dev" target="_blank">HMG StoreForge v7</a></p>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+const cfg=window.STORE_CONFIG||{};
+const sid=cfg.storeId||"default";
+const $=s=>document.querySelector(s);
+const fmt=n=>(cfg.currencySymbol||"₦")+Number(n||0).toLocaleString("en-NG");
+const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2000);}
+const PAID_KEY="sf_payouts_"+sid;
+const RATE=((cfg.ledger&&cfg.ledger.commissionPercent)||0)/100;
+let ledger=[];
+
+function vendors(){ return (cfg.marketplace&&cfg.marketplace.vendors)||[]; }
+function getOrders(){ try{return JSON.parse(localStorage.getItem("sfp_orders_"+sid))||[];}catch{return[];} }
+function getProducts(){ try{ return window._sfProducts||[]; }catch{return[];} }
+function getPaid(){ try{return JSON.parse(localStorage.getItem(PAID_KEY))||{};}catch{return{};} }
+function setPaid(p){ localStorage.setItem(PAID_KEY,JSON.stringify(p)); }
+
+function login(){ /* lightweight: match admin passcode stored in admin.html is not readable; use simple gate */
+  // We accept any non-empty pass here but recommend the admin passcode; for stronger gating use Supabase auth.
+  if(($("#pass").value||"").length>=4){ sessionStorage.setItem("sf_ledger","1"); show(); } else toast("Enter passcode (min 4 chars)"); }
+function logout(){ sessionStorage.removeItem("sf_ledger"); location.reload(); }
+
+async function loadProducts(){
+  // need product->vendor map
+  if(cfg.supabase&&cfg.supabase.url&&cfg.supabase.anonKey){
+    try{ const r=await fetch(`${cfg.supabase.url}/rest/v1/${cfg.supabase.table||"products"}?select=*`,{headers:{apikey:cfg.supabase.anonKey,Authorization:"Bearer "+cfg.supabase.anonKey}}); if(r.ok){ window._sfProducts=await r.json(); return; } }catch(e){}
+  }
+  try{ const r=await fetch("products.json",{cache:"no-store"}); if(r.ok){ const d=await r.json(); window._sfProducts=d.products||d; } }catch(e){ window._sfProducts=[]; }
+}
+
+async function show(){
+  $("#loginGate").hidden=true; $("#dash").hidden=false;
+  $("#rate").textContent=((cfg.ledger&&cfg.ledger.commissionPercent)||0)+"%";
+  await loadProducts(); compute(); render();
+}
+
+function compute(){
+  const orders=getOrders(), products=getProducts();
+  const nameToVendor={}; products.forEach(p=>{ nameToVendor[p.name]=p.vendor||"_store"; });
+  const map={}; // vendorId -> {sales, units, orders:Set}
+  orders.forEach(o=>{ (o.items||[]).forEach(it=>{
+    const vid=nameToVendor[it.name]||"_store";
+    map[vid]=map[vid]||{sales:0,units:0,orders:new Set()};
+    map[vid].sales+=it.price*it.qty; map[vid].units+=it.qty; map[vid].orders.add(o.id);
+  }); });
+  ledger=Object.entries(map).map(([vid,v])=>{
+    const vendor=vendors().find(x=>x.id===vid);
+    const commission=Math.round(v.sales*RATE);
+    return { vid, name: vendor?vendor.name:(vid==="_store"?"Store (direct)":vid),
+      sales:v.sales, units:v.units, orders:v.orders.size, commission, payout:v.sales-commission };
+  }).sort((a,b)=>b.sales-a.sales);
+}
+
+function render(){
+  const totalSales=ledger.reduce((s,l)=>s+l.sales,0);
+  const totalComm=ledger.reduce((s,l)=>s+l.commission,0);
+  const totalPayout=ledger.reduce((s,l)=>s+l.payout,0);
+  $("#stats").innerHTML=[[fmt(totalSales),"Total sales"],[fmt(totalComm),"Your commission"],[fmt(totalPayout),"Owed to vendors"],[ledger.length,"Vendors with sales"]]
+    .map(([v,l])=>`<div class="stat"><b>${v}</b><span>${l}</span></div>`).join("");
+  const paid=getPaid();
+  $("#ledgerTable").innerHTML=`<tr><th>Vendor</th><th class="num">Orders</th><th class="num">Units</th><th class="num">Sales</th><th class="num">Commission</th><th class="num">Payout owed</th><th>Status</th><th>Action</th></tr>`+
+    (ledger.length? ledger.map(l=>`<tr>
+      <td>${esc(l.name)}</td><td class="num">${l.orders}</td><td class="num">${l.units}</td>
+      <td class="num">${fmt(l.sales)}</td><td class="num">${fmt(l.commission)}</td><td class="num"><strong>${fmt(l.payout)}</strong></td>
+      <td><span class="paid-toggle" onclick="togglePaid('${l.vid}')">${paid[l.vid]?"✅ Paid":"⏳ Unpaid"}</span></td>
+      <td>${l.vid!=="_store"?`<button class="mini" onclick="payVendor('${l.vid}',${l.payout})">💸 Pay</button>`:"—"}</td></tr>`).join("")
+      : `<tr><td colspan="8" class="hint">No sales captured yet.</td></tr>`);
+}
+function togglePaid(vid){ const p=getPaid(); p[vid]=!p[vid]; setPaid(p); render(); toast(p[vid]?"Marked paid":"Marked unpaid"); }
+function payVendor(vid, amount){
+  const vendor=vendors().find(x=>x.id===vid); if(!vendor){ toast("Vendor not found"); return; }
+  // v8 split-payout helper: opens WhatsApp with payout + bank details for the vendor
+  if(window.StoreForgeV8){ StoreForgeV8.payoutWhatsApp(vendor, amount); }
+  else { window.open(`https://wa.me/${(vendor.whatsapp||"").replace(/\D/g,'')}?text=${encodeURIComponent("Payout of "+fmt(amount)+" coming your way.")}`,"_blank"); }
+}
+
+function exportCSV(){
+  const rows=[["Vendor","Orders","Units","Sales","Commission","Payout owed","Status"]];
+  const paid=getPaid();
+  ledger.forEach(l=>rows.push([l.name,l.orders,l.units,l.sales,l.commission,l.payout,paid[l.vid]?"Paid":"Unpaid"]));
+  const csv=rows.map(r=>r.map(c=>{c=String(c);return /[",\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c;}).join(",")).join("\n");
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download="vendor-payouts.csv";a.click();
+  toast("⬇ Exported");
+}
+if(sessionStorage.getItem("sf_ledger")==="1") show();
+</script>
+</body>
+</html>

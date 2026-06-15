@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Vendor Dashboard — HMG StoreForge</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+  .v-wrap{max-width:1000px;margin:0 auto;padding:1.4rem}
+  .v-head{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;margin-bottom:1.2rem;box-shadow:var(--shadow)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.8rem}
+  .f{margin-bottom:.7rem}
+  .f label{display:block;font-weight:600;font-size:.86rem;margin-bottom:.25rem}
+  .f input,.f textarea,.f select{width:100%;padding:.65rem;border:1px solid var(--border);border-radius:8px;background:var(--light);color:var(--text)}
+  .hint{font-size:.78rem;color:var(--muted)}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:1.2rem}
+  .stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.1rem;box-shadow:var(--shadow)}
+  .stat b{font-size:1.5rem;display:block;color:var(--primary)}
+  [data-theme="dark"] .stat b{color:var(--accent)}
+  .stat span{font-size:.8rem;color:var(--muted)}
+  .prod-row{display:flex;gap:.8rem;align-items:center;padding:.6rem;border:1px solid var(--border);border-radius:10px;margin-bottom:.5rem;background:var(--light)}
+  .prod-row img{width:50px;height:50px;border-radius:8px;object-fit:cover}
+  .prod-row .meta{flex:1;font-size:.86rem}
+  .mini{padding:.4rem .7rem;font-size:.78rem;border-radius:7px;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--text)}
+  .mini.del{color:#b3261e}
+  .login-box{max-width:400px;margin:8vh auto;text-align:center}
+  .lock{font-size:3rem}
+  .preview-img{width:80px;height:80px;border-radius:8px;object-fit:cover;border:1px solid var(--border)}
+  code{background:var(--light);padding:.1rem .4rem;border-radius:5px}
+</style>
+<script src="assets/js/config.js"></script>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginGate" class="v-wrap">
+  <div class="login-box panel">
+    <div class="lock">🏪</div>
+    <h2>Vendor Dashboard</h2>
+    <p class="hint">Enter your vendor code (given by the marketplace) to manage your shop.</p>
+    <div class="f" style="margin-top:1rem"><input id="vcode" placeholder="Vendor code (e.g. v1)" onkeydown="if(event.key==='Enter')login()"></div>
+    <button class="btn btn-primary btn-block" onclick="login()">Enter</button>
+    <p class="hint" style="margin-top:1rem">Don't have a code? <a href="vendor-apply.html">Apply to become a vendor →</a></p>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dash" class="v-wrap" hidden>
+  <div class="v-head">
+    <div><h2 id="vName">Vendor</h2><span class="hint" id="vMeta"></span></div>
+    <div><a class="mini" href="index.html" target="_blank">↗ View Store</a> <button class="mini del" onclick="logout()">Logout</button></div>
+  </div>
+
+  <div class="stats" id="vStats"></div>
+
+  <!-- ADD / EDIT PRODUCT -->
+  <div class="panel">
+    <h3 id="formTitle">➕ Add a Product</h3>
+    <div class="grid2">
+      <div class="f"><label>Product name *</label><input id="fName"></div>
+      <div class="f"><label>Category *</label><input id="fCat" placeholder="Fashion"></div>
+    </div>
+    <div class="grid3">
+      <div class="f"><label>Price (₦) *</label><input id="fPrice" type="number"></div>
+      <div class="f"><label>Old price</label><input id="fOld" type="number"></div>
+      <div class="f"><label>Stock qty</label><input id="fQty" type="number"></div>
+    </div>
+    <div class="f"><label>Image — Google Drive link or URL *</label><input id="fImage" placeholder="Paste Drive link"></div>
+    <div class="f" style="text-align:center"><img id="fPrev" class="preview-img" src="assets/images/placeholder.png"></div>
+    <div class="f"><label>Description</label><textarea id="fDesc" rows="2"></textarea></div>
+    <div class="grid2">
+      <div class="f"><label>In stock?</label><select id="fStock"><option value="true">✅ In stock</option><option value="false">❌ Out</option></select></div>
+      <div class="f"><label>Featured?</label><select id="fFeat"><option value="false">No</option><option value="true">⭐ Yes</option></select></div>
+    </div>
+    <button class="btn btn-primary" onclick="saveProduct()">💾 Save</button>
+    <button class="btn btn-outline" id="cancelEdit" hidden onclick="resetForm()">Cancel</button>
+  </div>
+
+  <!-- MY PRODUCTS -->
+  <div class="panel">
+    <h3>📦 My Products (<span id="count">0</span>)</h3>
+    <div id="list"></div>
+  </div>
+
+  <!-- MY ORDERS -->
+  <div class="panel">
+    <h3>🧾 My Orders</h3>
+    <p class="hint">Orders containing your products (captured on this device / synced).</p>
+    <div id="orders"></div>
+  </div>
+
+  <!-- PUBLISH -->
+  <div class="panel">
+    <h3>💾 Publish my products</h3>
+    <p class="hint">Download your products and send the file to the marketplace admin to merge into the
+       main <code>products.json</code> — or, if Supabase is enabled, your changes sync live.</p>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.6rem">
+      <button class="btn btn-primary" onclick="downloadMine()">⬇ Download my products.json</button>
+      <button class="btn btn-outline" onclick="copyMine()">📋 Copy JSON</button>
+    </div>
+  </div>
+
+  <p class="hint" style="text-align:center">⚡ Powered by <a href="https://hmgtechnologies.pages.dev" target="_blank">HMG StoreForge v6</a></p>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const cfg = window.STORE_CONFIG || {};
+const sid = cfg.storeId || "default";
+const $ = s => document.querySelector(s);
+const fmt = n => (cfg.currencySymbol||"₦") + Number(n||0).toLocaleString("en-NG");
+const esc = s => String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2000);}
+let vendor=null, products=[], editId=null;
+const KEY = ()=> "sf_vendor_products_"+sid+"_"+vendor.id;
+
+function driveImage(url){ if(!url) return "assets/images/placeholder.png";
+  const m=url.match(/\/d\/([a-zA-Z0-9_-]+)/)||url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  return m?`https://drive.google.com/thumbnail?id=${m[1]}&sz=w1000`:url; }
+
+function vendors(){ return (cfg.marketplace&&cfg.marketplace.vendors)||[]; }
+
+function login(){
+  const code=($("#vcode").value||"").trim();
+  const v = vendors().find(x=>x.id.toLowerCase()===code.toLowerCase() || (x.code&&x.code===code));
+  if(!v){ toast("❌ Unknown vendor code"); return; }
+  vendor=v; sessionStorage.setItem("sf_vendor", v.id); showDash();
+}
+function logout(){ sessionStorage.removeItem("sf_vendor"); location.reload(); }
+
+async function showDash(){
+  $("#loginGate").hidden=true; $("#dash").hidden=false;
+  $("#vName").textContent = "🏪 "+vendor.name;
+  $("#vMeta").textContent = `Vendor ${vendor.id} · 📍 ${vendor.location||""} · ⭐ ${vendor.rating||5}`;
+  $("#fImage").oninput=()=>$("#fPrev").src=driveImage($("#fImage").value);
+  await loadMine();
+  render(); renderOrders(); renderStats();
+}
+
+async function loadMine(){
+  // local edits first
+  const saved=localStorage.getItem(KEY());
+  if(saved){ products=JSON.parse(saved); return; }
+  // else pull my products from the main catalog
+  try{ const r=await fetch("products.json",{cache:"no-store"}); if(r.ok){ const d=await r.json();
+    products=(d.products||d).filter(p=>p.vendor===vendor.id); } }catch(e){}
+}
+function persist(){ localStorage.setItem(KEY(), JSON.stringify(products)); }
+
+function saveProduct(){
+  const name=$("#fName").value.trim(), price=parseFloat($("#fPrice").value), cat=$("#fCat").value.trim(), img=$("#fImage").value.trim();
+  if(!name||!price||!cat||!img){ toast("Fill name, price, category & image"); return; }
+  const obj={ id:editId||("p"+Date.now()), name, price, oldPrice:parseFloat($("#fOld").value)||null,
+    category:cat, qty:$("#fQty").value!==""?parseInt($("#fQty").value):null,
+    description:$("#fDesc").value.trim(), image:img, image_url:img,
+    stock:$("#fStock").value==="true", featured:$("#fFeat").value==="true",
+    vendor:vendor.id, active:true,
+    created_at: editId?(products.find(p=>p.id===editId)?.created_at||new Date().toISOString()):new Date().toISOString() };
+  if(editId) products=products.map(p=>p.id===editId?obj:p); else products.unshift(obj);
+  persist(); resetForm(); render(); renderStats(); toast("✅ Saved (publish below)");
+}
+function editProduct(id){ const p=products.find(x=>x.id===id); if(!p)return; editId=id;
+  $("#formTitle").textContent="✏️ Edit Product"; $("#cancelEdit").hidden=false;
+  $("#fName").value=p.name;$("#fCat").value=p.category;$("#fPrice").value=p.price;$("#fOld").value=p.oldPrice||"";
+  $("#fQty").value=(p.qty??"");$("#fImage").value=p.image||p.image_url||"";$("#fPrev").src=driveImage(p.image||p.image_url);
+  $("#fDesc").value=p.description||"";$("#fStock").value=String(p.stock!==false);$("#fFeat").value=String(!!p.featured);
+  window.scrollTo({top:0,behavior:"smooth"}); }
+function deleteProduct(id){ if(!confirm("Delete?"))return; products=products.filter(p=>p.id!==id); persist(); render(); renderStats(); toast("Deleted"); }
+function resetForm(){ editId=null; $("#formTitle").textContent="➕ Add a Product"; $("#cancelEdit").hidden=true;
+  ["fName","fCat","fPrice","fOld","fQty","fImage","fDesc"].forEach(i=>$("#"+i).value=""); $("#fPrev").src="assets/images/placeholder.png";
+  $("#fStock").value="true"; $("#fFeat").value="false"; }
+
+function render(){
+  $("#count").textContent=products.length;
+  $("#list").innerHTML = products.length? products.map(p=>`
+    <div class="prod-row">
+      <img src="${driveImage(p.image||p.image_url)}" onerror="this.src='assets/images/placeholder.png'">
+      <div class="meta"><strong>${esc(p.name)}</strong> ${p.featured?"⭐":""} ${p.stock===false?"❌":""}<br>
+      <small>${esc(p.category)} · ${fmt(p.price)} ${(typeof p.qty==="number")?"· qty "+p.qty:""}</small></div>
+      <div><button class="mini" onclick="editProduct('${p.id}')">Edit</button>
+      <button class="mini del" onclick="deleteProduct('${p.id}')">Delete</button></div>
+    </div>`).join("") : `<p class="hint">No products yet. Add your first product above.</p>`;
+}
+
+function myOrders(){
+  // read store-wide orders; keep those that include any of my product names
+  let all=[]; try{ all=JSON.parse(localStorage.getItem("sfp_orders_"+sid))||[]; }catch{}
+  const mine=new Set(products.map(p=>p.name));
+  return all.map(o=>({...o, items:(o.items||[]).filter(it=>mine.has(it.name))})).filter(o=>o.items.length);
+}
+function renderOrders(){
+  const orders=myOrders();
+  $("#orders").innerHTML = orders.length? `<table style="width:100%;border-collapse:collapse;font-size:.85rem">
+    <tr><th style="text-align:left;padding:.4rem">Order</th><th style="text-align:left;padding:.4rem">Items</th><th style="text-align:left;padding:.4rem">Subtotal</th><th style="text-align:left;padding:.4rem">Date</th></tr>`+
+    orders.map(o=>{const sub=o.items.reduce((s,i)=>s+i.price*i.qty,0);return `<tr>
+      <td style="padding:.4rem;border-top:1px solid var(--border)">${esc(o.id)}</td>
+      <td style="padding:.4rem;border-top:1px solid var(--border)">${o.items.map(i=>esc(i.name)+" ×"+i.qty).join(", ")}</td>
+      <td style="padding:.4rem;border-top:1px solid var(--border)">${fmt(sub)}</td>
+      <td style="padding:.4rem;border-top:1px solid var(--border)"><small>${new Date(o.date).toLocaleDateString()}</small></td></tr>`;}).join("")+`</table>`
+    : `<p class="hint">No orders for your products yet.</p>`;
+}
+function renderStats(){
+  const orders=myOrders();
+  const revenue=orders.reduce((s,o)=>s+o.items.reduce((a,i)=>a+i.price*i.qty,0),0);
+  const units=orders.reduce((s,o)=>s+o.items.reduce((a,i)=>a+i.qty,0),0);
+  const low=products.filter(p=>typeof p.qty==="number"&&p.qty<=3).length;
+  $("#vStats").innerHTML=[[products.length,"Products"],[orders.length,"Orders"],[fmt(revenue),"Revenue"],[units,"Units sold"],[low,"Low stock"]]
+    .map(([v,l])=>`<div class="stat"><b>${v}</b><span>${l}</span></div>`).join("");
+}
+
+function buildJSON(){ return JSON.stringify({vendor:vendor.id, products:products.map(p=>({
+  id:p.id,name:p.name,price:p.price,oldPrice:p.oldPrice||null,category:p.category,description:p.description||"",
+  image:p.image||p.image_url,stock:p.stock!==false,featured:!!p.featured,qty:(p.qty??null),vendor:vendor.id,
+  created_at:p.created_at}))},null,2); }
+function downloadMine(){ const b=new Blob([buildJSON()],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=vendor.id+"-products.json";a.click();
+  toast("⬇ Downloaded — send to marketplace admin"); }
+function copyMine(){ navigator.clipboard.writeText(buildJSON()).then(()=>toast("📋 Copied")); }
+
+// auto-login if session
+window.addEventListener("DOMContentLoaded",()=>{
+  const id=sessionStorage.getItem("sf_vendor");
+  if(id){ const v=vendors().find(x=>x.id===id); if(v){ vendor=v; showDash(); } }
+});
+</script>
+</body>
+</html>

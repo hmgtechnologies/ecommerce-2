@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Become a Vendor</title>
+<link rel="icon" href="assets/images/favicon.png">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/extras.css">
+<script src="assets/js/config.js"></script>
+<style>
+  .apply-wrap{max-width:600px;margin:3rem auto;padding:0 18px}
+  .apply-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.8rem;box-shadow:var(--shadow)}
+  .apply-card .f{margin-bottom:.8rem}
+  .apply-card label{display:block;font-weight:600;font-size:.88rem;margin-bottom:.25rem}
+  .apply-card input,.apply-card textarea,.apply-card select{width:100%;padding:.7rem;border:1px solid var(--border);border-radius:8px;background:var(--light);color:var(--text)}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="index.html" class="brand"><span class="brand-name" id="brandName">Store</span></a>
+    <nav class="main-nav"><a href="index.html">← Back to shop</a></nav>
+  </div>
+</header>
+
+<div class="apply-wrap">
+  <div class="apply-card">
+    <h2>🏪 Become a Vendor</h2>
+    <p class="muted">Sell your products on <span id="storeNameInline">our marketplace</span>. Fill in your
+       details and we'll get back to you on WhatsApp to set up your shop.</p>
+    <form id="vendorForm" onsubmit="return false" style="margin-top:1rem">
+      <div class="f"><label>Business / shop name *</label><input id="vName" required></div>
+      <div class="f"><label>Your WhatsApp number * <small>(intl, no +)</small></label><input id="vWa" required placeholder="2348012345678"></div>
+      <div class="f"><label>Location *</label><input id="vLoc" required placeholder="Lagos, Nigeria"></div>
+      <div class="f"><label>What do you sell? *</label><textarea id="vSell" rows="3" required placeholder="e.g. Fashion, shoes, accessories..."></textarea></div>
+      <div class="f"><label>Number of products</label><input id="vCount" type="number" placeholder="e.g. 20"></div>
+      <button class="btn btn-primary btn-block" onclick="submitVendor()">📨 Send Application</button>
+    </form>
+    <p class="muted" style="margin-top:1rem;font-size:.82rem">By applying you agree to the marketplace's
+       vendor terms. We'll confirm details and commission before listing your products.</p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+const cfg = window.STORE_CONFIG || {};
+const $ = s => document.querySelector(s);
+document.getElementById("brandName").textContent = cfg.storeName || "Store";
+document.getElementById("storeNameInline").textContent = cfg.storeName || "our marketplace";
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2200);}
+function submitVendor(){
+  const name=$("#vName").value.trim(), wa=$("#vWa").value.trim(), loc=$("#vLoc").value.trim(),
+        sell=$("#vSell").value.trim(), count=$("#vCount").value.trim();
+  if(!name||!wa||!loc||!sell){ toast("Please fill all required fields"); return; }
+  const msg = `🏪 VENDOR APPLICATION\nMarketplace: ${cfg.storeName}\n\n` +
+    `Shop: ${name}\nWhatsApp: ${wa}\nLocation: ${loc}\nSells: ${sell}\nProducts: ${count||"—"}`;
+  window.open(`https://wa.me/${cfg.whatsapp}?text=${encodeURIComponent(msg)}`, "_blank");
+  // optional email backup via Formspree
+  const fid = (cfg.newsletter && cfg.newsletter.formspreeId) || (cfg.orders && cfg.orders.alsoEmailFormspreeId);
+  if(fid){ fetch("https://formspree.io/f/"+fid,{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},
+    body:JSON.stringify({subject:"Vendor application: "+name,name,wa,loc,sell,count})}).catch(()=>{}); }
+  toast("✅ Application sent! We'll be in touch.");
+}
+</script>
+</body>
+</html>

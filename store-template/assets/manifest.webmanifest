@@ -1,0 +1,13 @@
+{
+  "name": "Online Store",
+  "short_name": "Store",
+  "description": "Shop online with fast delivery and WhatsApp support.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0f2a4a",
+  "icons": [
+    { "src": "assets/images/favicon.png", "sizes": "64x64", "type": "image/png" },
+    { "src": "assets/images/logo.png", "sizes": "200x200", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

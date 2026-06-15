@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Store Admin — HMG StoreForge v2</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+  .admin-wrap{max-width:1080px;margin:0 auto;padding:1.4rem}
+  .admin-head{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
+  .badge{padding:.3rem .7rem;border-radius:999px;font-size:.78rem;font-weight:700}
+  .badge.live{background:#0f9d58;color:#fff}.badge.local{background:var(--accent);color:#1b1300}
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;margin-bottom:1.2rem;box-shadow:var(--shadow)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.8rem}
+  .field{margin-bottom:.7rem}
+  .field label{display:block;font-weight:600;font-size:.86rem;margin-bottom:.25rem}
+  .field input,.field textarea,.field select{width:100%;padding:.65rem;border:1px solid var(--border);border-radius:8px;background:var(--light);color:var(--text)}
+  .hint{font-size:.78rem;color:var(--muted);margin-top:.2rem}
+  .prod-row{display:flex;gap:.8rem;align-items:center;padding:.6rem;border:1px solid var(--border);border-radius:10px;margin-bottom:.5rem;background:var(--light)}
+  .prod-row img{width:54px;height:54px;border-radius:8px;object-fit:cover}
+  .prod-row .meta{flex:1;font-size:.88rem}
+  .row-actions{display:flex;gap:.4rem;flex-wrap:wrap}
+  .mini{padding:.4rem .7rem;font-size:.78rem;border-radius:7px;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--text)}
+  .mini.del{color:#b3261e}
+  .preview-img{width:90px;height:90px;border-radius:8px;object-fit:cover;border:1px solid var(--border)}
+  .login-box{max-width:380px;margin:8vh auto;text-align:center}
+  .lock{font-size:3rem}
+  details summary{cursor:pointer;font-weight:600;padding:.4rem 0}
+  code{background:var(--light);padding:.1rem .4rem;border-radius:5px;font-size:.85rem}
+  /* Tabs */
+  .tabs{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem}
+  .tab{padding:.6rem 1rem;border:1px solid var(--border);border-radius:10px;background:var(--card);cursor:pointer;font-weight:600;font-size:.9rem;color:var(--text)}
+  .tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .tabpane{display:none}.tabpane.active{display:block}
+  /* Stat cards */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:1.2rem}
+  .stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.1rem;box-shadow:var(--shadow)}
+  .stat b{font-size:1.6rem;display:block;color:var(--primary)}
+  [data-theme="dark"] .stat b{color:var(--accent)}
+  .stat span{font-size:.82rem;color:var(--muted)}
+  .bar-row{display:flex;align-items:center;gap:.6rem;margin:.4rem 0;font-size:.85rem}
+  .bar-track{flex:1;height:14px;background:var(--light);border-radius:7px;overflow:hidden}
+  .bar-fill{height:100%;background:var(--accent2);border-radius:7px}
+  table{width:100%;border-collapse:collapse;font-size:.86rem}
+  th,td{text-align:left;padding:.5rem;border-bottom:1px solid var(--border)}
+  th{color:var(--muted);font-weight:600}
+</style>
+<script src="assets/js/config.js"></script>
+</head>
+<body>
+
+<!-- LOGIN GATE -->
+<div id="loginGate" class="admin-wrap">
+  <div class="login-box panel">
+    <div class="lock">🔐</div>
+    <h2>Store Admin v2</h2>
+    <p class="hint">Enter your admin passcode to manage your store.</p>
+    <div class="field" style="margin-top:1rem"><input type="password" id="pass" placeholder="Passcode" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn btn-primary btn-block" onclick="doLogin()">Unlock</button>
+    <p class="hint" style="margin-top:1rem">Default passcode: <code>admin1234</code> — change it in <code>admin.html</code>.</p>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dash" class="admin-wrap" hidden>
+  <div class="admin-head">
+    <div>
+      <h2 id="adminStoreName">Store Admin</h2>
+      <span id="modeBadge" class="badge local">LOCAL / JSON MODE</span>
+    </div>
+    <div class="row-actions">
+      <a class="mini" href="index.html" target="_blank">↗ View Store</a>
+      <button class="mini del" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('tProducts',this)">📦 Products</button>
+    <button class="tab" onclick="showTab('tDash',this)">📊 Dashboard</button>
+    <button class="tab" onclick="showTab('tOrders',this)">🧾 Orders</button>
+    <button class="tab" onclick="showTab('tBulk',this)">📥 Bulk CSV</button>
+    <button class="tab" onclick="showTab('tPublish',this)">💾 Publish</button>
+    <button class="tab" onclick="showTab('tHelp',this)">❓ Help</button>
+  </div>
+
+  <!-- ===== PRODUCTS TAB ===== -->
+  <div id="tProducts" class="tabpane active">
+    <div class="panel">
+      <h3 id="formTitle">➕ Add a Product</h3>
+      <div class="grid2">
+        <div class="field"><label>Product name *</label><input id="fName" placeholder="e.g. Ankara Fabric (6 yards)"></div>
+        <div class="field"><label>Category *</label><input id="fCat" placeholder="e.g. Fashion" list="catList"><datalist id="catList"></datalist></div>
+      </div>
+      <div class="grid3">
+        <div class="field"><label>Price (₦) *</label><input id="fPrice" type="number" placeholder="18000"></div>
+        <div class="field"><label>Old price (SALE badge)</label><input id="fOld" type="number" placeholder="22000"></div>
+        <div class="field"><label>Stock quantity (optional)</label><input id="fQty" type="number" placeholder="e.g. 10"></div>
+      </div>
+      <div class="field">
+        <label>Main image — Google Drive link or image URL *</label>
+        <input id="fImage" placeholder="Paste Google Drive share link or https://image-url.jpg">
+        <p class="hint">📌 Google Drive: upload → Share → "Anyone with the link" → Copy → paste. Auto-converted to a direct image.</p>
+      </div>
+      <div class="field">
+        <label>Extra images (gallery) — comma-separated links (optional)</label>
+        <input id="fImages" placeholder="link1, link2, link3">
+      </div>
+      <div class="field" style="text-align:center">
+        <img id="fPreview" class="preview-img" src="assets/images/placeholder.png" alt="preview">
+      </div>
+      <div class="field"><label>Description</label><textarea id="fDesc" rows="3" placeholder="Describe the product, sizes, colours, delivery info..."></textarea></div>
+      <div class="grid3">
+        <div class="field"><label>SKU / code (optional)</label><input id="fSku" placeholder="BFH-001"></div>
+        <div class="field"><label>In stock?</label><select id="fStock"><option value="true">✅ In stock</option><option value="false">❌ Out of stock</option></select></div>
+        <div class="field"><label>Featured?</label><select id="fFeatured"><option value="false">No</option><option value="true">⭐ Yes</option></select></div>
+      </div>
+      <div class="field">
+        <label>Variants (optional) — format: <code>Size: S, M, L | Colour: Red, Blue</code></label>
+        <input id="fVariants" placeholder="Size: S, M, L | Colour: Red, Blue">
+      </div>
+      <div class="row-actions">
+        <button class="btn btn-primary" onclick="saveProduct()">💾 Save Product</button>
+        <button class="btn btn-outline" id="cancelEdit" hidden onclick="resetForm()">Cancel edit</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="admin-head" style="margin-bottom:.6rem">
+        <h3>📦 Your Products (<span id="count">0</span>)</h3>
+        <input id="prodSearch" placeholder="🔍 Filter products" style="max-width:240px;padding:.5rem;border:1px solid var(--border);border-radius:8px;background:var(--light);color:var(--text)" oninput="render()">
+      </div>
+      <div id="prodList"></div>
+    </div>
+  </div>
+
+  <!-- ===== DASHBOARD TAB ===== -->
+  <div id="tDash" class="tabpane">
+    <div class="stats" id="statCards"></div>
+    <div class="panel">
+      <h3>📈 Sales by status</h3>
+      <div id="statusChart"></div>
+    </div>
+    <div class="panel">
+      <h3>🏆 Top products (by units ordered)</h3>
+      <div id="topProducts"></div>
+    </div>
+    <div class="panel">
+      <h3>📁 Inventory snapshot</h3>
+      <div id="inventory"></div>
+    </div>
+  </div>
+
+  <!-- ===== ORDERS TAB ===== -->
+  <div id="tOrders" class="tabpane">
+    <div class="panel">
+      <div class="admin-head" style="margin-bottom:.6rem">
+        <h3>🧾 Orders</h3>
+        <button class="mini" onclick="exportOrdersCSV()">⬇ Export orders CSV</button>
+      </div>
+      <p class="hint">Orders placed on this device are shown. For multi-device order capture, enable the Supabase orders table (see Help).</p>
+      <div id="ordersList"></div>
+    </div>
+  </div>
+
+  <!-- ===== BULK CSV TAB ===== -->
+  <div id="tBulk" class="tabpane">
+    <div class="panel">
+      <h3>📥 Bulk import products (CSV)</h3>
+      <p class="hint">Upload many products at once. Columns: <code>name,price,oldPrice,category,description,image,stock,featured,qty,sku</code></p>
+      <div class="row-actions" style="margin:.6rem 0">
+        <button class="btn btn-outline" onclick="downloadCSVTemplate()">⬇ Download CSV template</button>
+        <button class="btn btn-outline" onclick="exportProductsCSV()">⬇ Export current products CSV</button>
+      </div>
+      <div class="field"><label>Choose a CSV file</label><input type="file" id="csvFile" accept=".csv"></div>
+      <div class="field">
+        <label>Or paste CSV text</label>
+        <textarea id="csvText" rows="6" placeholder="name,price,category,image,...&#10;Red Shoe,12000,Fashion,https://...,..."></textarea>
+      </div>
+      <label class="hint"><input type="checkbox" id="csvReplace"> Replace all existing products (otherwise append)</label>
+      <div class="row-actions" style="margin-top:.6rem">
+        <button class="btn btn-primary" onclick="importCSV()">📥 Import</button>
+      </div>
+      <div id="csvResult" class="hint" style="margin-top:.6rem"></div>
+    </div>
+  </div>
+
+  <!-- ===== PUBLISH TAB ===== -->
+  <div id="tPublish" class="tabpane">
+    <div class="panel">
+      <h3>💾 Save & Publish</h3>
+      <p class="hint" id="saveMode"></p>
+      <div class="row-actions" style="margin-top:.6rem;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="downloadJSON()">⬇ Download products.json</button>
+        <button class="btn btn-outline" onclick="copyJSON()">📋 Copy JSON</button>
+        <button class="btn btn-outline" id="syncBtn" hidden onclick="syncSupabase()">☁️ Sync to Supabase</button>
+        <button class="btn btn-outline" onclick="backupAll()">🗄️ Download full backup</button>
+        <button class="btn btn-outline" onclick="restoreBackup()">♻️ Restore backup</button>
+        <input type="file" id="restoreFile" accept=".json" hidden>
+      </div>
+      <details style="margin-top:1rem">
+        <summary>How publishing works</summary>
+        <p class="hint" style="margin-top:.5rem">
+          <strong>JSON mode (free, no signup):</strong> Click "Download products.json", then upload the file to your GitHub repo (replacing the old one). Your store updates in ~1 minute.<br><br>
+          <strong>Supabase mode (live, instant):</strong> If Supabase is configured in <code>config.js</code>, click "Sync to Supabase" and changes appear instantly with no re-upload.<br><br>
+          <strong>Full backup:</strong> downloads products + reviews + orders + wishlist as one JSON you can restore later or on another device.
+        </p>
+      </details>
+    </div>
+  </div>
+
+  <!-- ===== HELP TAB ===== -->
+  <div id="tHelp" class="tabpane">
+    <div class="panel">
+      <h3>❓ Quick help</h3>
+      <p class="hint">Full guides are in the <code>docs/</code> folder of your project. Key points:</p>
+      <ul class="hint" style="line-height:1.8;margin-left:1rem">
+        <li><strong>Add products:</strong> Products tab → fill form → Save → Publish tab → Download products.json → upload to GitHub.</li>
+        <li><strong>Images:</strong> Use Google Drive links shared as "Anyone with the link".</li>
+        <li><strong>Bulk:</strong> Bulk CSV tab → download template → fill in Excel/Sheets → import.</li>
+        <li><strong>Orders/Reviews:</strong> stored per device; enable Supabase for centralised storage.</li>
+        <li><strong>Discounts & delivery zones:</strong> set in <code>assets/js/config.js</code> (see DEPLOYMENT/FEATURES docs).</li>
+      </ul>
+    </div>
+  </div>
+
+  <p class="hint" style="text-align:center">⚡ Powered by <a href="https://hmgtechnologies.pages.dev" target="_blank">HMG StoreForge v2</a></p>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== Admin passcode — CHANGE THIS ===== */
+const ADMIN_PASS = "admin1234";
+
+const cfg = window.STORE_CONFIG || {};
+const sid = cfg.storeId || "default";
+const KEY = "sf_admin_products_" + sid;
+let products = [];
+let editId = null;
+const useSupabase = !!(cfg.supabase && cfg.supabase.url && cfg.supabase.anonKey);
+
+const $ = s => document.querySelector(s);
+const fmt = n => (cfg.currencySymbol||"₦") + Number(n||0).toLocaleString("en-NG");
+const esc = s => String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2000);}
+
+function showTab(id,btn){
+  document.querySelectorAll(".tabpane").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  $("#"+id).classList.add("active"); btn.classList.add("active");
+  if(id==="tDash") renderDashboard();
+  if(id==="tOrders") renderOrders();
+}
+
+function doLogin(){
+  if($("#pass").value === ADMIN_PASS){ sessionStorage.setItem("sf_admin","1"); showDash(); }
+  else toast("❌ Wrong passcode");
+}
+function logout(){ sessionStorage.removeItem("sf_admin"); location.reload(); }
+
+function driveImage(url){
+  if(!url) return "assets/images/placeholder.png";
+  const m = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  return m ? `https://drive.google.com/thumbnail?id=${m[1]}&sz=w1000` : url;
+}
+
+async function showDash(){
+  $("#loginGate").hidden = true; $("#dash").hidden = false;
+  $("#adminStoreName").textContent = (cfg.storeName||"Store") + " — Admin";
+  if(useSupabase){ $("#modeBadge").textContent="LIVE / SUPABASE MODE"; $("#modeBadge").className="badge live"; $("#syncBtn").hidden=false;
+    $("#saveMode").textContent="Supabase is configured. Use 'Sync to Supabase' for instant live updates, or download JSON as backup."; }
+  else { $("#saveMode").textContent="JSON mode: after editing, download products.json and upload it to your GitHub repo to publish."; }
+  await loadProducts();
+  $("#fImage").oninput = ()=> $("#fPreview").src = driveImage($("#fImage").value);
+  $("#restoreFile").onchange = doRestore;
+  render();
+}
+
+async function loadProducts(){
+  if(useSupabase){
+    try{
+      const r = await fetch(`${cfg.supabase.url}/rest/v1/${cfg.supabase.table||"products"}?select=*&order=created_at.desc`,
+        {headers:{apikey:cfg.supabase.anonKey,Authorization:"Bearer "+cfg.supabase.anonKey}});
+      if(r.ok){ products = await r.json(); return; }
+    }catch(e){ console.warn(e); }
+  }
+  const saved = localStorage.getItem(KEY);
+  if(saved){ products = JSON.parse(saved); return; }
+  try{ const r = await fetch("products.json",{cache:"no-store"}); if(r.ok){ const d=await r.json(); products=d.products||d; } }catch(e){}
+}
+
+function persistLocal(){ localStorage.setItem(KEY, JSON.stringify(products)); }
+
+function parseVariants(str){
+  if(!str || !str.trim()) return [];
+  return str.split("|").map(g=>{
+    const [name,opts] = g.split(":");
+    if(!opts) return null;
+    return { name:name.trim(), options:opts.split(",").map(o=>o.trim()).filter(Boolean) };
+  }).filter(Boolean);
+}
+function variantsToStr(v){ return (v||[]).map(x=>`${x.name}: ${x.options.join(", ")}`).join(" | "); }
+
+function saveProduct(){
+  const name=$("#fName").value.trim(), price=parseFloat($("#fPrice").value), cat=$("#fCat").value.trim(), img=$("#fImage").value.trim();
+  if(!name||!price||!cat||!img){ toast("Fill name, category, price & image"); return; }
+  const extra = $("#fImages").value.split(",").map(s=>s.trim()).filter(Boolean);
+  const obj = {
+    id: editId || ("p"+Date.now()),
+    name, price, oldPrice: parseFloat($("#fOld").value)||null, category:cat,
+    description:$("#fDesc").value.trim(),
+    image: img, image_url: img,
+    images: extra,
+    qty: $("#fQty").value!=="" ? parseInt($("#fQty").value) : null,
+    sku: $("#fSku").value.trim(),
+    variants: parseVariants($("#fVariants").value),
+    stock: $("#fStock").value==="true", active:true,
+    featured: $("#fFeatured").value==="true",
+    created_at: editId ? (products.find(p=>p.id===editId)?.created_at || new Date().toISOString()) : new Date().toISOString()
+  };
+  if(editId){ products = products.map(p=>p.id===editId?obj:p); } else { products.unshift(obj); }
+  persistLocal(); resetForm(); render(); toast("✅ Saved (remember to publish)");
+}
+
+function editProduct(id){
+  const p = products.find(x=>x.id===id); if(!p) return; editId=id;
+  $("#formTitle").textContent="✏️ Edit Product"; $("#cancelEdit").hidden=false;
+  $("#fName").value=p.name; $("#fCat").value=p.category; $("#fPrice").value=p.price;
+  $("#fOld").value=p.oldPrice||""; $("#fImage").value=p.image||p.image_url||"";
+  $("#fImages").value=(p.images||[]).join(", ");
+  $("#fQty").value=(p.qty??""); $("#fSku").value=p.sku||"";
+  $("#fVariants").value=variantsToStr(p.variants);
+  $("#fPreview").src=driveImage(p.image||p.image_url); $("#fDesc").value=p.description||"";
+  $("#fStock").value=String(p.stock!==false); $("#fFeatured").value=String(!!p.featured);
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function deleteProduct(id){ if(!confirm("Delete this product?"))return; products=products.filter(p=>p.id!==id); persistLocal(); render(); toast("Deleted"); }
+function resetForm(){ editId=null; $("#formTitle").textContent="➕ Add a Product"; $("#cancelEdit").hidden=true;
+  ["fName","fCat","fPrice","fOld","fImage","fImages","fQty","fSku","fVariants","fDesc"].forEach(i=>$("#"+i).value="");
+  $("#fPreview").src="assets/images/placeholder.png"; $("#fStock").value="true"; $("#fFeatured").value="false"; }
+
+function render(){
+  $("#count").textContent = products.length;
+  const cats=[...new Set(products.map(p=>p.category))];
+  $("#catList").innerHTML = cats.map(c=>`<option value="${esc(c)}">`).join("");
+  const q = ($("#prodSearch")?.value||"").toLowerCase();
+  const list = products.filter(p=>!q || (p.name||"").toLowerCase().includes(q) || (p.category||"").toLowerCase().includes(q));
+  $("#prodList").innerHTML = list.length ? list.map(p=>`
+    <div class="prod-row">
+      <img src="${driveImage(p.image||p.image_url)}" onerror="this.src='assets/images/placeholder.png'">
+      <div class="meta">
+        <strong>${esc(p.name)}</strong> ${p.featured?"⭐":""} ${p.stock===false?"❌":""} ${(typeof p.qty==="number")?`<small>· qty ${p.qty}</small>`:""}<br>
+        <small>${esc(p.category)} · ${fmt(p.price)}${p.sku?` · ${esc(p.sku)}`:""}</small>
+      </div>
+      <div class="row-actions">
+        <button class="mini" onclick="editProduct('${p.id}')">Edit</button>
+        <button class="mini del" onclick="deleteProduct('${p.id}')">Delete</button>
+      </div>
+    </div>`).join("") : `<p class="hint">No products found.</p>`;
+}
+
+/* ===== DASHBOARD ===== */
+function getOrders(){ try{return JSON.parse(localStorage.getItem("sfp_orders_"+sid))||[];}catch{return[];} }
+function getReviews(){ try{return JSON.parse(localStorage.getItem("sfp_reviews_"+sid))||{};}catch{return{};} }
+
+function renderDashboard(){
+  const orders = getOrders();
+  const revenue = orders.reduce((s,o)=>s+(o.total||0),0);
+  const reviews = getReviews();
+  const reviewCount = Object.values(reviews).reduce((s,a)=>s+a.length,0);
+  const lowStock = products.filter(p=>typeof p.qty==="number" && p.qty<=3).length;
+
+  $("#statCards").innerHTML = [
+    [products.length,"Products"],[orders.length,"Orders (device)"],
+    [fmt(revenue),"Revenue (device)"],[reviewCount,"Reviews"],
+    [[...new Set(products.map(p=>p.category))].length,"Categories"],[lowStock,"Low-stock items"]
+  ].map(([v,l])=>`<div class="stat"><b>${v}</b><span>${l}</span></div>`).join("");
+
+  // status chart
+  const byStatus={}; orders.forEach(o=>byStatus[o.status]=(byStatus[o.status]||0)+1);
+  const maxS=Math.max(1,...Object.values(byStatus));
+  $("#statusChart").innerHTML = Object.keys(byStatus).length ? Object.entries(byStatus).map(([s,n])=>`
+    <div class="bar-row"><span style="width:90px">${s}</span>
+    <div class="bar-track"><div class="bar-fill" style="width:${n/maxS*100}%"></div></div><span>${n}</span></div>`).join("")
+    : `<p class="hint">No orders yet.</p>`;
+
+  // top products
+  const counts={};
+  orders.forEach(o=>(o.items||[]).forEach(it=>counts[it.name]=(counts[it.name]||0)+it.qty));
+  const top=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const maxT=Math.max(1,...top.map(t=>t[1]));
+  $("#topProducts").innerHTML = top.length ? top.map(([n,c])=>`
+    <div class="bar-row"><span style="width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(n)}</span>
+    <div class="bar-track"><div class="bar-fill" style="width:${c/maxT*100}%;background:var(--accent)"></div></div><span>${c}</span></div>`).join("")
+    : `<p class="hint">No sales data yet.</p>`;
+
+  // inventory
+  $("#inventory").innerHTML = `<table><tr><th>Product</th><th>Category</th><th>Price</th><th>Qty</th><th>Status</th></tr>` +
+    products.map(p=>`<tr><td>${esc(p.name)}</td><td>${esc(p.category)}</td><td>${fmt(p.price)}</td>
+      <td>${typeof p.qty==="number"?p.qty:"—"}</td>
+      <td>${p.stock===false?"❌ Out":(typeof p.qty==="number"&&p.qty<=3?"⚠️ Low":"✅ OK")}</td></tr>`).join("") + `</table>`;
+}
+
+/* ===== ORDERS ===== */
+function renderOrders(){
+  const orders = getOrders();
+  $("#ordersList").innerHTML = orders.length ? `<table>
+    <tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th><th></th></tr>` +
+    orders.map(o=>`<tr>
+      <td>${esc(o.id)}</td><td>${esc(o.customer||"")}<br><small>${esc(o.phone||"")}</small></td>
+      <td>${fmt(o.total)}</td>
+      <td><select onchange="setOrderStatus('${o.id}',this.value)" style="padding:.3rem;border-radius:6px;border:1px solid var(--border);background:var(--light);color:var(--text)">
+        ${["pending","paid","shipped","delivered"].map(s=>`<option ${o.status===s?"selected":""}>${s}</option>`).join("")}
+      </select></td>
+      <td><small>${new Date(o.date).toLocaleString()}</small></td>
+      <td><a class="mini" target="_blank" href="https://wa.me/${(o.phone||"").replace(/\\D/g,'')}?text=${encodeURIComponent('Hi! Update on your order '+o.id)}">💬</a></td>
+    </tr>`).join("") + `</table>`
+    : `<p class="hint">No orders captured on this device yet.</p>`;
+}
+function setOrderStatus(id,status){
+  const orders=getOrders(); const o=orders.find(x=>x.id===id); if(o){o.status=status;localStorage.setItem("sfp_orders_"+sid,JSON.stringify(orders));toast("Status updated");}
+}
+function exportOrdersCSV(){
+  const orders=getOrders(); if(!orders.length){toast("No orders");return;}
+  const rows=[["id","customer","phone","address","total","status","date","items"]];
+  orders.forEach(o=>rows.push([o.id,o.customer,o.phone,o.address,o.total,o.status,o.date,(o.items||[]).map(i=>`${i.name} x${i.qty}`).join("; ")]));
+  downloadFile("orders.csv", rows.map(r=>r.map(csvCell).join(",")).join("\n"));
+}
+
+/* ===== CSV IMPORT/EXPORT ===== */
+function csvCell(v){ v=String(v??""); return /[",\n]/.test(v)?`"${v.replace(/"/g,'""')}"`:v; }
+function downloadFile(name,content,type="text/plain"){
+  const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([content],{type})); a.download=name; a.click();
+}
+function downloadCSVTemplate(){
+  downloadFile("products-template.csv","name,price,oldPrice,category,description,image,stock,featured,qty,sku\nRed Sneakers,12000,15000,Fashion,Comfortable sneakers,https://drive.google.com/file/d/XXXX/view,true,true,10,SKU-001\n");
+}
+function exportProductsCSV(){
+  const rows=[["name","price","oldPrice","category","description","image","stock","featured","qty","sku"]];
+  products.forEach(p=>rows.push([p.name,p.price,p.oldPrice||"",p.category,p.description||"",p.image||p.image_url||"",p.stock!==false,!!p.featured,(p.qty??""),p.sku||""]));
+  downloadFile("products.csv", rows.map(r=>r.map(csvCell).join(",")).join("\n"));
+}
+function parseCSV(text){
+  const lines=text.trim().split(/\r?\n/); if(lines.length<2) return [];
+  const headers=splitCSVLine(lines[0]).map(h=>h.trim());
+  return lines.slice(1).map(line=>{
+    const cells=splitCSVLine(line); const o={};
+    headers.forEach((h,i)=>o[h]=cells[i]??""); return o;
+  });
+}
+function splitCSVLine(line){
+  const out=[]; let cur="",q=false;
+  for(let i=0;i<line.length;i++){const c=line[i];
+    if(q){ if(c==='"'){ if(line[i+1]==='"'){cur+='"';i++;} else q=false; } else cur+=c; }
+    else { if(c===','){out.push(cur);cur="";} else if(c==='"'){q=true;} else cur+=c; }
+  } out.push(cur); return out;
+}
+function importCSV(){
+  const text=$("#csvText").value.trim();
+  const file=$("#csvFile").files[0];
+  const handle=(t)=>{
+    const rows=parseCSV(t);
+    if(!rows.length){ $("#csvResult").textContent="❌ No rows found."; return; }
+    const mapped=rows.filter(r=>r.name).map(r=>({
+      id:"p"+Date.now()+Math.floor(Math.random()*1000),
+      name:r.name, price:parseFloat(r.price)||0, oldPrice:parseFloat(r.oldPrice)||null,
+      category:r.category||"General", description:r.description||"",
+      image:r.image||"", image_url:r.image||"",
+      stock:String(r.stock).toLowerCase()!=="false", featured:String(r.featured).toLowerCase()==="true",
+      qty:r.qty!==""&&r.qty!=null?parseInt(r.qty):null, sku:r.sku||"",
+      created_at:new Date().toISOString()
+    }));
+    products = $("#csvReplace").checked ? mapped : [...mapped, ...products];
+    persistLocal(); render();
+    $("#csvResult").textContent=`✅ Imported ${mapped.length} products. Go to Publish to make them live.`;
+    toast("✅ Imported "+mapped.length);
+  };
+  if(file){ const fr=new FileReader(); fr.onload=()=>handle(fr.result); fr.readAsText(file); }
+  else if(text){ handle(text); }
+  else $("#csvResult").textContent="Choose a file or paste CSV text first.";
+}
+
+/* ===== PUBLISH / BACKUP ===== */
+function buildJSON(){ return JSON.stringify({products:products.map(p=>({
+  id:p.id,name:p.name,price:p.price,oldPrice:p.oldPrice||null,category:p.category,
+  description:p.description||"",image:p.image||p.image_url,images:p.images||[],
+  stock:p.stock!==false,featured:!!p.featured,qty:(p.qty??null),sku:p.sku||"",
+  variants:p.variants||[],created_at:p.created_at}))}, null, 2); }
+function downloadJSON(){ downloadFile("products.json",buildJSON(),"application/json"); toast("⬇ Downloaded. Upload to GitHub to publish."); }
+function copyJSON(){ navigator.clipboard.writeText(buildJSON()).then(()=>toast("📋 Copied")); }
+function backupAll(){
+  const data={products,reviews:getReviews(),orders:getOrders(),
+    wishlist:JSON.parse(localStorage.getItem("sfp_wish_"+sid)||"[]"),exported:new Date().toISOString()};
+  downloadFile("storeforge-backup.json",JSON.stringify(data,null,2),"application/json"); toast("🗄️ Backup downloaded");
+}
+function restoreBackup(){ $("#restoreFile").click(); }
+function doRestore(e){
+  const f=e.target.files[0]; if(!f)return;
+  const fr=new FileReader(); fr.onload=()=>{
+    try{ const d=JSON.parse(fr.result);
+      if(d.products){products=d.products;persistLocal();}
+      if(d.reviews)localStorage.setItem("sfp_reviews_"+sid,JSON.stringify(d.reviews));
+      if(d.orders)localStorage.setItem("sfp_orders_"+sid,JSON.stringify(d.orders));
+      if(d.wishlist)localStorage.setItem("sfp_wish_"+sid,JSON.stringify(d.wishlist));
+      render(); toast("♻️ Backup restored");
+    }catch{toast("❌ Invalid backup file");}
+  }; fr.readAsText(f);
+}
+
+async function syncSupabase(){
+  if(!useSupabase){ toast("Supabase not configured"); return; }
+  toast("Syncing…");
+  try{
+    for(const p of products){
+      await fetch(`${cfg.supabase.url}/rest/v1/${cfg.supabase.table||"products"}`,{
+        method:"POST",
+        headers:{apikey:cfg.supabase.anonKey,Authorization:"Bearer "+cfg.supabase.anonKey,
+          "Content-Type":"application/json",Prefer:"resolution=merge-duplicates"},
+        body:JSON.stringify({id:p.id,name:p.name,price:p.price,old_price:p.oldPrice,category:p.category,
+          description:p.description,image_url:p.image||p.image_url,stock:p.stock!==false,featured:!!p.featured,
+          qty:(p.qty??null),sku:p.sku||"",active:true})
+      });
+    }
+    toast("☁️ Synced to Supabase");
+  }catch(e){ toast("Sync failed — check Supabase setup"); }
+}
+
+if(sessionStorage.getItem("sf_admin")==="1") showDash();
+</script>
+</body>
+</html>

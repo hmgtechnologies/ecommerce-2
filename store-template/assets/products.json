@@ -1,0 +1,39 @@
+{
+  "_comment": "HMG StoreForge v2 product catalog. Edited by the Admin panel. Supports Google Drive image links (auto-converted), multiple gallery images, variants, stock quantity, and SKU.",
+  "products": [
+    {
+      "id": "p1",
+      "name": "Sample Product — Ankara Fabric",
+      "price": 18000,
+      "oldPrice": 22000,
+      "category": "Fashion",
+      "description": "Premium quality Ankara fabric, 6 yards. Replace this with your real product.",
+      "image": "assets/images/placeholder.png",
+      "images": ["assets/images/placeholder.png", "assets/images/hero.jpg"],
+      "stock": true,
+      "featured": true,
+      "qty": 12,
+      "sku": "ANK-001",
+      "variants": [
+        { "name": "Length", "options": ["3 yards", "6 yards"] }
+      ],
+      "created_at": "2026-06-13T10:00:00Z"
+    },
+    {
+      "id": "p2",
+      "name": "Sample Product — Wireless Earbuds",
+      "price": 25000,
+      "category": "Electronics",
+      "description": "Bluetooth 5.3 earbuds. Replace this with your real product and a Google Drive image link.",
+      "image": "assets/images/placeholder.png",
+      "stock": true,
+      "featured": false,
+      "qty": 3,
+      "sku": "EAR-002",
+      "variants": [
+        { "name": "Colour", "options": ["Black", "White"] }
+      ],
+      "created_at": "2026-06-12T10:00:00Z"
+    }
+  ]
+}
