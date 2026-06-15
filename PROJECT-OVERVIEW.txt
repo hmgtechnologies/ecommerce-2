@@ -1,0 +1,128 @@
+================================================================================
+  HMG STOREFORGE v9 — E-COMMERCE STORE GENERATOR PLATFORM
+  A product of HMG Technologies (subsidiary of HMG Concepts)
+  Created by Adewale Samson Adeagbo · Lagos, Nigeria
+  "His Marvellous Grace — Real problems. Real solutions."
+
+  v9 ADDS (all free, no AI APIs; nothing from v1–v8 removed):
+   • CUSTOMIZATION STUDIO — pick FEATURES, LAYOUTS, UI/UX, FONTS, COLOURS per
+     client (live preview): 8 fonts, 4 layouts, 4 heros, 4 card styles, 4 UI
+     styles, roundness/button/density, dark default, 8 colour presets.
+   • STRONGER LEAD GENERATION — YOUR HMG brand embedded on every client store
+     (footer + floating badge + pre-filled WhatsApp) to send users back to you.
+   • PRODUCT Q&A · ABANDONED-CART EMAIL RECOVERY · ACCESSIBILITY (WCAG/Lighthouse).
+   Stores stay searchable (SEO) + installable (PWA).
+   See docs/CHANGELOG-V9.md, docs/CUSTOMIZATION-STUDIO.md, docs/ACCESSIBILITY.md.
+
+  v8 ADDED: full multi-language (EN/Pidgin/Hausa/Yoruba/Igbo) · offline-first
+   order queue · vendor split-payout · stronger SEO + installable confirmation.
+
+  v7 ADDED: buyer accounts + saved addresses · subscriptions · vendor payout
+   ledger · generator installable as an app (PWA).
+
+  v6 ADDED: vendor self-service dashboard · dispatch/riders · push notifications ·
+   store QR code · monthly sales-target widget.
+
+  v5 ADDED: multi-vendor marketplace · order splitting · WhatsApp auto-reply ·
+   gift cards · referral program · in-stock filter.
+
+  v4 ADDED: Google Sheets order logging · loyalty points · flash-sale countdown ·
+   social proof · product comparison · trust badges · back-in-stock alerts ·
+   estimated delivery · EN/Pidgin switcher.
+
+  v3 ADDED: fully-populated demo store · one-click GitHub deploy · store hours ·
+   FAQ · testimonials · multi-currency · price-range filter · coupon-by-URL ·
+   returns policy · printable receipts · customer memory · catalog export.
+
+  v2 ADDED: wishlist · reviews · galleries · variants · stock qty ·
+   recently viewed · related · coupons · delivery zones · order tracking ·
+   PWA · newsletter · abandoned-cart nudge · analytics · tabbed admin
+   (dashboard, orders, bulk CSV, backup/restore).
+================================================================================
+
+WHAT THIS IS
+------------
+A platform that GENERATES complete, ready-to-deploy online stores for clients.
+You enter client details once; it outputs a full e-commerce website (catalog,
+cart, WhatsApp ordering, payments, admin panel) you upload to GitHub / Cloudflare.
+Similar in spirit to Jumia / Jiji / Konga, but a single-vendor store per client.
+100% FREE TOOLS. NO PAID AI APIs.
+
+FOLDER MAP
+----------
+e-commerce/
+├── README.md ................. Start here. Master overview.
+├── PROJECT-OVERVIEW.txt ...... This file (quick reference).
+│
+├── generator/ ............... THE GENERATOR (where YOU create stores)
+│   ├── index.html ........... Browser form: enter details → download store ZIP
+│   ├── assets/css/generator.css
+│   ├── assets/js/brand.js ... ⭐ YOUR HMG brand + WhatsApp (edit your contacts here)
+│   ├── assets/js/generator.js  ZIP build engine
+│   ├── assets/js/templates.js  embedded store files (auto-generated)
+│   ├── assets/images/storeforge-logo.png
+│   └── cli/
+│       ├── generate.js ...... Node CLI generator (node generate.js client.json)
+│       ├── build-templates.js  re-embed store files after edits
+│       └── client.sample.json  sample client config
+│
+├── store-template/ ......... THE STORE each client receives
+│   ├── index.html ........... storefront
+│   ├── admin.html ........... store admin panel (products, dashboard, orders, CSV)
+│   ├── vendor.html .......... 🆕 vendor self-service dashboard
+│   ├── dispatch.html ........ 🆕 dispatch & rider assignment
+│   ├── track.html · vendor-apply.html
+│   ├── products.json ........ JSON catalog
+│   ├── assets/css/ .......... style.css + extras.css
+│   ├── assets/js/store.js ... storefront engine (+ store-extras1..5, marketplace)
+│   ├── assets/js/config.js .. per-store settings (generated)
+│   └── assets/images/ ....... logo, hero, placeholder, favicon, og-image
+│
+├── demo-store/ ............. 🆕 FULLY-POPULATED DEMO (open index.html to preview)
+│   ├── index.html · admin.html · track.html
+│   ├── products.json ........ 12 real demo products
+│   ├── assets/js/config.js .. live coupons, zones, hours, FAQ, testimonials
+│   └── assets/images/products/ .. 10 real product photos
+│
+├── integrations/ ........... free integrations
+│   ├── google-sheets-orders.gs ... order logging Apps Script
+│   ├── GOOGLE-SHEETS-SETUP.md ..... order logging setup
+│   ├── whatsapp-autoreply.gs ...... 🆕 WhatsApp auto-reply Apps Script
+│   └── WHATSAPP-AUTOREPLY-SETUP.md  🆕 WhatsApp auto-reply setup
+│
+├── supabase/
+│   └── schema.sql ........... optional free live database (products + orders)
+│
+└── docs/
+    ├── DEPLOYMENT.md ........ STEP-BY-STEP deploy (GitHub + Cloudflare)
+    ├── FEATURES.md ......... every feature explained
+    ├── CLIENT-GUIDE.md ..... give this to your client
+    ├── SUPABASE-SETUP.md ... live database setup
+    ├── PAYMENTS.md ......... bank transfer + Paystack/Flutterwave
+    ├── LEAD-GENERATION.md .. how your HMG brand brings leads
+    └── TROUBLESHOOTING.md .. fixes for common issues
+
+FIRST THINGS TO DO
+------------------
+1) Open generator/assets/js/brand.js → confirm your WhatsApp + email + links.
+2) Open generator/index.html in a browser → try generating a test store.
+3) Read docs/DEPLOYMENT.md → deploy the generator and your first client store.
+
+THREE-STEP WORKFLOW (per client)
+--------------------------------
+1. GENERATE: open generator → fill form → Generate → download ZIP (unzip).
+   (or: cd generator/cli && node generate.js client.json)
+2. DEPLOY:   create GitHub repo named <storeId> → upload files →
+             Cloudflare Pages → live at https://<storeId>.pages.dev
+3. HANDOVER: send client their store link, admin link, passcode + CLIENT-GUIDE.
+
+LEAD GENERATION (built in)
+--------------------------
+Every store footer says: "⚡ Built with HMG StoreForge · Get your own store 💬"
+linking to your WhatsApp and HMG Technologies. Every client store advertises you.
+
+SUPPORT
+-------
+WhatsApp HMG Technologies: +234 810 086 6322 · https://wa.me/2348100866322
+HMG Technologies: https://hmgtechnologies.pages.dev
+================================================================================
