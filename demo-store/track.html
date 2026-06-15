@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Track Your Order</title>
+<link rel="icon" href="assets/images/favicon.png">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/extras.css">
+<script src="assets/js/config.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="index.html" class="brand"><span class="brand-name" id="brandName">Store</span></a>
+    <nav class="main-nav"><a href="index.html">← Back to shop</a></nav>
+  </div>
+</header>
+
+<div class="track-wrap">
+  <div class="track-card">
+    <h2>📦 Track Your Order</h2>
+    <p class="muted">Enter the Order ID you received at checkout (e.g. <code>ORD-123456</code>). Orders are
+       saved on the device used to place them.</p>
+    <div class="track-search">
+      <input id="orderInput" placeholder="ORD-XXXXXX">
+      <button class="btn btn-primary" onclick="track()">Track</button>
+    </div>
+    <div id="result"></div>
+    <div id="recentOrders"></div>
+  </div>
+  <p class="muted" style="text-align:center;margin-top:1rem">
+    Need help? <a id="waHelp" target="_blank">Chat with us on WhatsApp</a>
+  </p>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const cfg = window.STORE_CONFIG || {};
+const sid = cfg.storeId || "default";
+const $ = s => document.querySelector(s);
+const fmt = n => (cfg.currencySymbol||"₦") + Number(n||0).toLocaleString("en-NG");
+const esc = s => String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+document.getElementById("brandName").textContent = cfg.storeName || "Store";
+$("#waHelp").href = `https://wa.me/${cfg.whatsapp}?text=${encodeURIComponent("Hi! I want to check my order status.")}`;
+
+function getOrders(){ try{return JSON.parse(localStorage.getItem("sfp_orders_"+sid))||[];}catch{return[];} }
+
+const STEPS = ["pending","paid","shipped","delivered"];
+const STEP_LABELS = {pending:"Order placed",paid:"Payment confirmed",shipped:"Shipped",delivered:"Delivered"};
+
+function renderOrder(o){
+  const idx = STEPS.indexOf(o.status);
+  const steps = STEPS.map((s,i)=>`<div class="step ${i<=idx?'done':''}"><div class="dot">${i<=idx?'✓':i+1}</div><small>${STEP_LABELS[s]}</small></div>`).join("");
+  const items = o.items.map(it=>`<div class="order-item-row"><span>${esc(it.name)} × ${it.qty}</span><span>${fmt(it.price*it.qty)}</span></div>`).join("");
+  return `<div style="margin-top:1.2rem">
+    <h3>${esc(o.id)} <span class="order-status status-${o.status}">${o.status.toUpperCase()}</span></h3>
+    <div class="steps">${steps}</div>
+    ${items}
+    <div class="order-item-row"><strong>Total</strong><strong>${fmt(o.total)}</strong></div>
+    <p class="muted" style="margin-top:.6rem">Placed: ${new Date(o.date).toLocaleString()}</p>
+    <a class="btn btn-primary btn-block" style="margin-top:.6rem" target="_blank"
+       href="https://wa.me/${cfg.whatsapp}?text=${encodeURIComponent('Hi! Status update on order '+o.id+'?')}">💬 Ask about this order</a>
+  </div>`;
+}
+
+function track(){
+  const id = ($("#orderInput").value||"").trim().toUpperCase();
+  const o = getOrders().find(x=>x.id.toUpperCase()===id);
+  $("#result").innerHTML = o ? renderOrder(o)
+    : `<p style="color:#b3261e;margin-top:1rem">Order not found on this device. Double-check the ID, or contact us on WhatsApp.</p>`;
+}
+
+// Show recent orders on this device
+window.addEventListener("DOMContentLoaded",()=>{
+  const orders = getOrders();
+  if(orders.length){
+    $("#recentOrders").innerHTML = `<h3 style="margin-top:1.6rem">Your recent orders</h3>` +
+      orders.slice(0,5).map(o=>`<div class="order-item-row" style="cursor:pointer" onclick="document.getElementById('orderInput').value='${o.id}';track()">
+        <span>${esc(o.id)} · ${new Date(o.date).toLocaleDateString()}</span>
+        <span class="order-status status-${o.status}">${o.status}</span></div>`).join("");
+  }
+});
+</script>
+</body>
+</html>

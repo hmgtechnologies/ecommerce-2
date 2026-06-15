@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Dispatch & Riders — HMG StoreForge</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+  .d-wrap{max-width:1000px;margin:0 auto;padding:1.4rem}
+  .d-head{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;margin-bottom:1.2rem;box-shadow:var(--shadow)}
+  .f label{display:block;font-weight:600;font-size:.86rem;margin-bottom:.25rem}
+  .f input,.f select{width:100%;padding:.6rem;border:1px solid var(--border);border-radius:8px;background:var(--light);color:var(--text)}
+  .hint{font-size:.78rem;color:var(--muted)}
+  .order-card{border:1px solid var(--border);border-radius:12px;padding:1rem;margin-bottom:.8rem;background:var(--light)}
+  .oc-head{display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap}
+  .pill{padding:.25rem .7rem;border-radius:999px;font-size:.75rem;font-weight:700}
+  .p-unassigned{background:#fff3cd;color:#856404}.p-assigned{background:#cce5ff;color:#004085}
+  .p-dispatched{background:#d1ecf1;color:#0c5460}.p-delivered{background:#d4edda;color:#155724}
+  .row-flex{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin-top:.6rem}
+  .mini{padding:.45rem .8rem;font-size:.8rem;border-radius:8px;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--text);text-decoration:none}
+  .mini.go{background:var(--accent);color:#1b1300;border-color:var(--accent)}
+  .login-box{max-width:380px;margin:8vh auto;text-align:center}.lock{font-size:3rem}
+  code{background:var(--light);padding:.1rem .4rem;border-radius:5px}
+</style>
+<script src="assets/js/config.js"></script>
+</head>
+<body>
+
+<div id="loginGate" class="d-wrap">
+  <div class="login-box panel">
+    <div class="lock">🛵</div>
+    <h2>Dispatch &amp; Riders</h2>
+    <p class="hint">Enter the dispatch passcode to assign orders to riders.</p>
+    <div class="f" style="margin-top:1rem"><input type="password" id="pass" placeholder="Passcode" onkeydown="if(event.key==='Enter')login()"></div>
+    <button class="btn btn-primary btn-block" onclick="login()">Unlock</button>
+    <p class="hint" style="margin-top:1rem">Default: <code>dispatch123</code> — change in <code>dispatch.html</code>.</p>
+  </div>
+</div>
+
+<div id="dash" class="d-wrap" hidden>
+  <div class="d-head">
+    <h2>🛵 Dispatch & Riders</h2>
+    <div><a class="mini" href="index.html" target="_blank">↗ Store</a> <button class="mini" onclick="logout()">Logout</button></div>
+  </div>
+
+  <div class="panel">
+    <h3>Riders</h3>
+    <div id="riderList" class="hint"></div>
+    <p class="hint" style="margin-top:.5rem">Edit riders in <code>config.js → dispatch.riders</code>.</p>
+  </div>
+
+  <div class="panel">
+    <h3>Orders to dispatch</h3>
+    <p class="hint">Assign each order to a rider; a WhatsApp message with pickup &amp; delivery details opens for the rider.</p>
+    <div id="orders"></div>
+  </div>
+  <p class="hint" style="text-align:center">⚡ Powered by <a href="https://hmgtechnologies.pages.dev" target="_blank">HMG StoreForge v6</a></p>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+/* ===== Dispatch passcode — CHANGE THIS ===== */
+const DISPATCH_PASS = "dispatch123";
+
+const cfg=window.STORE_CONFIG||{};
+const sid=cfg.storeId||"default";
+const $=s=>document.querySelector(s);
+const fmt=n=>(cfg.currencySymbol||"₦")+Number(n||0).toLocaleString("en-NG");
+const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2000);}
+const ASSIGN_KEY="sf_dispatch_"+sid;
+
+function riders(){ return (cfg.dispatch&&cfg.dispatch.riders)||[]; }
+function getOrders(){ try{return JSON.parse(localStorage.getItem("sfp_orders_"+sid))||[];}catch{return[];} }
+function getAssign(){ try{return JSON.parse(localStorage.getItem(ASSIGN_KEY))||{};}catch{return{};} }
+function setAssign(a){ localStorage.setItem(ASSIGN_KEY,JSON.stringify(a)); }
+
+function login(){ if($("#pass").value===DISPATCH_PASS){ sessionStorage.setItem("sf_dispatch","1"); show(); } else toast("❌ Wrong passcode"); }
+function logout(){ sessionStorage.removeItem("sf_dispatch"); location.reload(); }
+
+function show(){
+  $("#loginGate").hidden=true; $("#dash").hidden=false;
+  $("#riderList").innerHTML = riders().length? riders().map(r=>`🛵 <strong>${esc(r.name)}</strong> (${esc(r.phone)})`).join(" &nbsp;·&nbsp; ") : "No riders configured.";
+  renderOrders();
+}
+function renderOrders(){
+  const orders=getOrders(), assign=getAssign();
+  $("#orders").innerHTML = orders.length? orders.map(o=>{
+    const a=assign[o.id]||{}; const status=a.status||"unassigned";
+    const items=(o.items||[]).map(i=>esc(i.name)+" ×"+i.qty).join(", ");
+    const riderOpts = `<option value="">— select rider —</option>`+riders().map(r=>`<option value="${esc(r.name)}|${esc(r.phone)}" ${a.rider===r.name?"selected":""}>${esc(r.name)}</option>`).join("");
+    return `<div class="order-card">
+      <div class="oc-head"><strong>${esc(o.id)}</strong><span class="pill p-${status}">${status.toUpperCase()}</span></div>
+      <div class="hint" style="margin:.3rem 0">${items} · <strong>${fmt(o.total)}</strong></div>
+      <div class="hint">👤 ${esc(o.customer||"")} · 📞 ${esc(o.phone||"")} · 📍 ${esc(o.address||"")}</div>
+      <div class="row-flex">
+        <select onchange="assignRider('${o.id}',this.value)" style="max-width:200px">${riderOpts}</select>
+        <button class="mini go" onclick="dispatchOrder('${o.id}')">📲 Send to rider</button>
+        <button class="mini" onclick="setStatus('${o.id}','dispatched')">Mark dispatched</button>
+        <button class="mini" onclick="setStatus('${o.id}','delivered')">Mark delivered</button>
+        <button class="mini" onclick="packingSlip('${o.id}')">🖨️ Packing slip</button>
+      </div></div>`;
+  }).join("") : `<p class="hint">No orders captured on this device yet.</p>`;
+}
+function assignRider(id,val){ const a=getAssign(); const [name,phone]=(val||"").split("|");
+  a[id]={...(a[id]||{}),rider:name,riderPhone:phone,status:name?"assigned":"unassigned"}; setAssign(a); renderOrders(); }
+function setStatus(id,status){ const a=getAssign(); a[id]={...(a[id]||{}),status}; setAssign(a); renderOrders(); toast("Status: "+status); }
+function dispatchOrder(id){
+  const o=getOrders().find(x=>x.id===id); const a=getAssign()[id]||{};
+  if(!a.riderPhone){ toast("Select a rider first"); return; }
+  const items=(o.items||[]).map(i=>"• "+i.name+" ×"+i.qty).join("\n");
+  const msg=`🛵 DELIVERY JOB ${o.id}\nStore: ${cfg.storeName}\n\nPICK UP from: ${cfg.location||"store"}\nDELIVER TO:\n👤 ${o.customer}\n📞 ${o.phone}\n📍 ${o.address}\n\nItems:\n${items}\nCOD/Total: ${fmt(o.total)}`;
+  window.open(`https://wa.me/${a.riderPhone.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`,"_blank");
+  setStatus(id,"dispatched");
+}
+function packingSlip(id){
+  const o=getOrders().find(x=>x.id===id); const a=getAssign()[id]||{};
+  const rows=(o.items||[]).map(i=>`<tr><td>${esc(i.name)}</td><td>${i.qty}</td><td style="text-align:right">${fmt(i.price*i.qty)}</td></tr>`).join("");
+  const w=window.open("","_blank");
+  w.document.write(`<html><head><title>Packing slip ${esc(o.id)}</title>
+    <style>body{font-family:system-ui,Arial;padding:24px}table{width:100%;border-collapse:collapse;margin:1rem 0}td,th{padding:.4rem;border-bottom:1px solid #ddd;text-align:left}</style></head><body>
+    <h2>${esc(cfg.storeName)} — Packing Slip</h2><p>Order ${esc(o.id)} · ${new Date(o.date).toLocaleString()}</p>
+    <p><strong>Deliver to:</strong><br>${esc(o.customer)}<br>${esc(o.phone)}<br>${esc(o.address)}</p>
+    <p><strong>Rider:</strong> ${esc(a.rider||"—")} ${esc(a.riderPhone||"")}</p>
+    <table><tr><th>Item</th><th>Qty</th><th style="text-align:right">Amount</th></tr>${rows}
+    <tr><td colspan="2"><strong>TOTAL</strong></td><td style="text-align:right"><strong>${fmt(o.total)}</strong></td></tr></table>
+    <p>Payment: ${esc(o.method||"")}</p><p style="color:#777">⚡ HMG StoreForge</p>
+    <script>window.print()<\/script></body></html>`); w.document.close();
+}
+if(sessionStorage.getItem("sf_dispatch")==="1") show();
+</script>
+</body>
+</html>

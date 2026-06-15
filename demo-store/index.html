@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ===== SEO (auto-filled by generator) ===== -->
+  <title>{{STORE_NAME}} — Online Store</title>
+  <meta name="description" content="{{STORE_TAGLINE}} Shop {{STORE_NAME}} online. {{STORE_LOCATION}}." />
+  <meta name="keywords" content="{{STORE_NAME}}, online store, {{STORE_LOCATION}}, buy online, Nigeria, ecommerce, shop online" />
+  <meta name="author" content="{{STORE_NAME}}" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <link rel="canonical" href="{{STORE_URL}}" />
+  <!-- Paste your Google Search Console verification code here (see SEO-GUIDE.md) -->
+  <!-- <meta name="google-site-verification" content="YOUR_CODE" /> -->
+
+  <!-- Open Graph / social sharing -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="{{STORE_NAME}}" />
+  <meta property="og:locale" content="en_NG" />
+  <meta property="og:title" content="{{STORE_NAME}} — Online Store" />
+  <meta property="og:description" content="{{STORE_TAGLINE}}" />
+  <meta property="og:image" content="assets/images/og-image.jpg" />
+  <meta property="og:url" content="{{STORE_URL}}" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="{{STORE_NAME}} — Online Store" />
+  <meta name="twitter:description" content="{{STORE_TAGLINE}}" />
+  <meta name="twitter:image" content="assets/images/og-image.jpg" />
+
+  <link rel="icon" type="image/png" href="assets/images/favicon.png" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/extras.css" />
+  <link rel="stylesheet" href="assets/css/themes.css" />
+
+  <!-- PWA: installable + offline (v2) -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#0f2a4a" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="{{STORE_NAME}}" />
+  <link rel="apple-touch-icon" href="assets/images/logo.png" />
+
+  <!-- Store configuration injected by the generator -->
+  <script src="assets/js/config.js"></script>
+  <!-- Optional free analytics (loads nothing if IDs blank) -->
+  <script src="assets/js/analytics.js"></script>
+  <!-- v8: full multi-language -->
+  <script src="assets/js/i18n.js"></script>
+  <!-- v9: theme/layout/font engine (runs before render) -->
+  <script src="assets/js/theme-engine.js"></script>
+</head>
+<body>
+  <!-- a11y: skip to main content (WCAG) -->
+  <a href="#products" class="skip-link">Skip to products</a>
+
+  <!-- ====================== OFFLINE / QUEUE BAR (v8) ====================== -->
+  <div class="offline-bar" id="offlineBar" hidden></div>
+
+  <!-- ====================== ABANDONED-CART EMAIL RECOVERY (v9) ====================== -->
+  <div class="recovery-bar" id="recoveryBar" hidden></div>
+
+  <!-- ====================== FLASH SALE BAR (v4) ====================== -->
+  <div class="flash-sale" id="flashSale" hidden></div>
+
+  <!-- ====================== SUBSCRIPTION REMINDER BAR (v7) ====================== -->
+  <div class="sub-bar" id="subBar" hidden></div>
+
+  <!-- ====================== TOP ANNOUNCEMENT BAR ====================== -->
+  <div class="announce" id="announceBar">
+    <span id="announceText">🎉 Welcome to {{STORE_NAME}} — Fast delivery & secure payment!</span>
+    <button class="announce-close" onclick="document.getElementById('announceBar').style.display='none'">✕</button>
+  </div>
+
+  <!-- ====================== HEADER / NAV ====================== -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand">
+        <img src="assets/images/logo.png" alt="{{STORE_NAME}} logo" class="brand-logo" onerror="this.style.display='none'" />
+        <span class="brand-name">{{STORE_NAME}}</span>
+      </a>
+
+      <nav class="main-nav" id="mainNav">
+        <a href="#products" data-i18n="shop">Shop</a>
+        <a href="#categories" data-i18n="categories">Categories</a>
+        <a href="#about" data-i18n="about">About</a>
+        <a href="#contact" data-i18n="contact">Contact</a>
+        <a href="track.html" data-i18n="track">Track Order</a>
+      </nav>
+
+      <div class="header-actions">
+        <button class="notif-btn" id="accountBtn" hidden>👤 Sign in</button>
+        <button class="notif-btn" id="notifBtn" hidden>🔔 Get order alerts</button>
+        <span class="loyalty-badge" id="loyaltyBadge" hidden>⭐ 0 pts</span>
+        <span class="lang-switch" id="langSwitch" hidden></span>
+        <button class="icon-btn" id="themeToggle" title="Toggle dark mode" aria-label="Toggle theme">🌙</button>
+        <button class="icon-btn cart-btn" id="wishBtn" title="Wishlist" aria-label="Open wishlist">
+          ❤️ <span class="cart-count" id="wishCount">0</span>
+        </button>
+        <button class="icon-btn cart-btn" id="cartBtn" title="View cart" aria-label="Open cart">
+          🛒 <span class="cart-count" id="cartCount">0</span>
+        </button>
+        <button class="icon-btn nav-toggle" id="navToggle" aria-label="Menu">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ====================== HERO ====================== -->
+  <section class="hero">
+    <div class="container hero-inner">
+      <div class="hero-text">
+        <p class="hero-eyebrow">📍 {{STORE_LOCATION}}</p>
+        <h1>{{STORE_NAME}}</h1>
+        <p class="hero-tagline">{{STORE_TAGLINE}}</p>
+        <div class="hero-cta">
+          <a href="#products" class="btn btn-primary" data-i18n="shopNow">🛍️ Shop Now</a>
+          <a href="#contact" class="btn btn-outline" data-i18n="contactUs">💬 Contact Us</a>
+        </div>
+        <div class="hero-trust">
+          <span>✅ Secure Payment</span>
+          <span>🚚 Fast Delivery</span>
+          <span>💬 WhatsApp Support</span>
+        </div>
+      </div>
+      <div class="hero-image">
+        <img src="assets/images/hero.jpg" alt="{{STORE_NAME}} products" onerror="this.parentElement.classList.add('no-img')" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== SEARCH + FILTER BAR ====================== -->
+  <section class="toolbar">
+    <div class="container toolbar-inner">
+      <input type="search" id="searchInput" class="search-input" placeholder="🔍 Search products..." />
+      <select id="categoryFilter" class="filter-select"><option value="">All Categories</option></select>
+      <select id="sortSelect" class="filter-select">
+        <option value="default">Sort: Featured</option>
+        <option value="price-asc">Price: Low → High</option>
+        <option value="price-desc">Price: High → Low</option>
+        <option value="name-asc">Name: A → Z</option>
+        <option value="newest">Newest first</option>
+      </select>
+      <!-- v3: store hours + currency -->
+      <span class="store-hours" id="storeHours" hidden></span>
+      <span class="currency-switch" id="currencySwitch" hidden></span>
+    </div>
+    <div class="container">
+      <!-- v3: price-range filter -->
+      <div class="price-filter">
+        <span style="font-size:.85rem;color:var(--muted)">Price (₦):</span>
+        <input type="number" id="priceMin" placeholder="Min" />
+        <input type="number" id="priceMax" placeholder="Max" />
+        <button class="btn btn-outline" id="priceApply">Apply</button>
+        <button class="btn btn-text" id="priceClear">Clear</button>
+        <label style="font-size:.85rem;display:flex;align-items:center;gap:.3rem;cursor:pointer">
+          <input type="checkbox" id="filterInStock"> In stock only</label>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== SALES TARGET WIDGET (v6, optional) ====================== -->
+  <div class="sales-target" id="salesTarget" hidden></div>
+
+  <!-- ====================== TRUST BADGES (v4) ====================== -->
+  <section class="trust-section">
+    <div class="container">
+      <div class="trust-grid" id="trustBadges"></div>
+    </div>
+  </section>
+
+  <!-- ====================== VENDOR PILLS (v5 marketplace) ====================== -->
+  <section class="vendor-strip">
+    <div class="container">
+      <div class="vendor-pills" id="vendorPills"></div>
+    </div>
+  </section>
+
+  <!-- ====================== CATEGORY PILLS ====================== -->
+  <section id="categories" class="category-strip">
+    <div class="container">
+      <div class="category-pills" id="categoryPills"></div>
+    </div>
+  </section>
+
+  <!-- ====================== PRODUCTS GRID ====================== -->
+  <section id="products" class="products-section">
+    <div class="container">
+      <div class="section-head">
+        <h2 data-i18n="ourProducts">Our Products</h2>
+        <p id="resultCount" class="result-count"></p>
+      </div>
+      <div class="product-grid" id="productGrid">
+        <div class="loading">Loading products…</div>
+      </div>
+      <div class="empty-state" id="emptyState" hidden>
+        <p>😕 No products match your search.</p>
+        <button class="btn btn-outline" onclick="StoreForge.clearFilters()">Clear filters</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== RECENTLY VIEWED (v2) ====================== -->
+  <section id="recentSection" class="recent-section" hidden>
+    <div class="container">
+      <div class="section-head"><h2>👀 Recently Viewed</h2></div>
+      <div class="mini-grid" id="recentGrid"></div>
+    </div>
+  </section>
+
+  <!-- ====================== ABOUT ====================== -->
+  <section id="about" class="about-section">
+    <div class="container about-inner">
+      <div class="about-text">
+        <h2>About {{STORE_NAME}}</h2>
+        <p>{{STORE_ABOUT}}</p>
+        <ul class="about-points">
+          <li>✅ Genuine products, fair prices</li>
+          <li>✅ Friendly WhatsApp customer service</li>
+          <li>✅ Reliable delivery across {{STORE_LOCATION}} and beyond</li>
+        </ul>
+      </div>
+      <div class="about-card">
+        <h3>📞 Quick Contact</h3>
+        <p><strong>WhatsApp:</strong> <span id="aboutWhatsapp"></span></p>
+        <p><strong>Email:</strong> <span id="aboutEmail"></span></p>
+        <p><strong>Location:</strong> {{STORE_LOCATION}}</p>
+        <a class="btn btn-primary btn-block" id="aboutWaBtn" target="_blank" rel="noopener">💬 Chat on WhatsApp</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== CONTACT ====================== -->
+  <section id="contact" class="contact-section">
+    <div class="container">
+      <div class="section-head"><h2 data-i18n="getTouch">Get in Touch</h2><p>We usually reply within minutes on WhatsApp.</p></div>
+      <div class="contact-grid">
+        <a class="contact-card" id="contactWa" target="_blank" rel="noopener">
+          <span class="contact-ico">💬</span><h3>WhatsApp</h3><p>Chat with us directly</p>
+        </a>
+        <a class="contact-card" id="contactEmail">
+          <span class="contact-ico">✉️</span><h3>Email</h3><p id="contactEmailText">Send us a message</p>
+        </a>
+        <a class="contact-card" id="contactCall">
+          <span class="contact-ico">📞</span><h3>Call</h3><p id="contactCallText">Speak to us</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== VENDOR DIRECTORY (v5 marketplace) ====================== -->
+  <section id="vendorSection" class="vendor-section" hidden>
+    <div class="container">
+      <div class="section-head"><h2>🏪 Our Vendors</h2><p>Shop from trusted sellers in one place.</p></div>
+      <div class="vendor-directory" id="vendorDirectory"></div>
+    </div>
+  </section>
+
+  <!-- ====================== TESTIMONIALS (v3) ====================== -->
+  <section id="testimonialSection" class="testimonial-section">
+    <div class="container">
+      <div class="section-head"><h2>💬 What Our Customers Say</h2></div>
+      <div class="testimonial-grid" id="testimonialGrid"></div>
+    </div>
+  </section>
+
+  <!-- ====================== FAQ (v3) ====================== -->
+  <section id="faqSection" class="faq-section">
+    <div class="container">
+      <div class="section-head"><h2>❓ Frequently Asked Questions</h2></div>
+      <div id="faqList"></div>
+      <div class="util-bar">
+        <button class="btn btn-outline" onclick="StoreForgeV3.showReturns()">↩️ Returns Policy</button>
+        <button class="btn btn-outline" id="shareCatalogBtn">📤 Share Catalog</button>
+        <button class="btn btn-outline" id="referralBtn" hidden>🎁 Refer & Earn</button>
+        <button class="btn btn-outline" id="qrBtn" hidden>📱 Store QR Code</button>
+        <a class="btn btn-outline" href="track.html">📦 Track Order</a>
+        <a class="btn btn-outline" href="vendor-apply.html">🏪 Become a Vendor</a>
+        <a class="btn btn-outline" href="vendor.html">🔑 Vendor Login</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== NEWSLETTER (v2, free Formspree) ====================== -->
+  <section class="newsletter-section">
+    <div class="container newsletter-inner">
+      <div>
+        <h2>📬 Stay in the loop</h2>
+        <p>Subscribe for new arrivals, discounts, and special offers.</p>
+      </div>
+      <form id="newsletterForm" class="newsletter-form">
+        <input type="email" id="newsletterEmail" placeholder="Your email address" required />
+        <button class="btn btn-primary" type="submit">Subscribe</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ====================== FOOTER (HMG lead-gen credit) ====================== -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-col">
+        <h4>{{STORE_NAME}}</h4>
+        <p>{{STORE_TAGLINE}}</p>
+        <p class="muted">📍 {{STORE_LOCATION}}</p>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <a href="#products" data-i18n="shop">Shop</a><a href="#about" data-i18n="about">About</a><a href="#contact" data-i18n="contact">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h4>Follow Us</h4>
+        <div class="social-row" id="socialRow"></div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© <span id="year"></span> {{STORE_NAME}}. All rights reserved.</p>
+      <!-- HMG StoreForge lead-generation credit (do not remove to keep free licence) -->
+      <div class="hmg-powered" id="hmgPowered"></div>
+    </div>
+  </footer>
+
+  <!-- ====================== CART DRAWER ====================== -->
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <aside class="cart-drawer" id="cartDrawer" aria-hidden="true">
+    <div class="cart-head">
+      <h3 data-i18n="cart">🛒 Your Cart</h3>
+      <button class="icon-btn" id="cartClose" aria-label="Close cart">✕</button>
+    </div>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-foot">
+      <div class="cart-total"><span>Total</span><strong id="cartTotal">₦0</strong></div>
+      <button class="btn btn-primary btn-block" id="checkoutBtn" data-i18n="checkout">Proceed to Checkout →</button>
+      <button class="btn btn-text btn-block" id="continueShopping" data-i18n="continue">Continue shopping</button>
+    </div>
+  </aside>
+
+  <!-- ====================== PRODUCT MODAL ====================== -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="productModal" role="dialog" aria-modal="true">
+      <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- ====================== CHECKOUT MODAL ====================== -->
+  <div class="modal-overlay" id="checkoutOverlay">
+    <div class="modal" id="checkoutModal" role="dialog" aria-modal="true">
+      <button class="modal-close" id="checkoutClose" aria-label="Close">✕</button>
+      <div class="modal-body" id="checkoutBody"></div>
+    </div>
+  </div>
+
+  <!-- ====================== WISHLIST DRAWER (v2) ====================== -->
+  <div class="cart-overlay" id="wishOverlay" onclick="StoreForgePlus.closeWishlist()"></div>
+  <aside class="cart-drawer" id="wishDrawer" aria-hidden="true">
+    <div class="cart-head">
+      <h3>❤️ Your Wishlist</h3>
+      <button class="icon-btn" onclick="StoreForgePlus.closeWishlist()" aria-label="Close">✕</button>
+    </div>
+    <div class="cart-items" id="wishBody"></div>
+  </aside>
+
+  <!-- ====================== GENERIC MODAL (v3: returns, etc.) ====================== -->
+  <div class="modal-overlay" id="genericOverlay" onclick="StoreForgeV3.closeGeneric()"></div>
+  <div class="modal" id="genericModal" role="dialog" aria-modal="true">
+    <button class="modal-close" onclick="StoreForgeV3.closeGeneric()" aria-label="Close">✕</button>
+    <div class="modal-body" id="genericModalBody"></div>
+  </div>
+
+  <!-- Abandoned-cart nudge bar (v2) -->
+  <div class="abandon-bar" id="abandonBar" hidden>
+    🛒 You left items in your cart!
+    <button id="abandonBtn" class="btn btn-primary">Complete on WhatsApp →</button>
+    <button class="abandon-close" onclick="document.getElementById('abandonBar').hidden=true">✕</button>
+  </div>
+
+  <!-- Floating WhatsApp button -->
+  <a class="float-wa" id="floatWa" target="_blank" rel="noopener" title="Chat on WhatsApp">💬</a>
+
+  <!-- Back to top (v2) -->
+  <button class="back-top" id="backTop" title="Back to top" aria-label="Back to top">↑</button>
+
+  <!-- v4: social proof toast + compare floating button -->
+  <div class="social-proof" id="socialProof"></div>
+  <button class="compare-fab" id="compareBtn" hidden>⚖️ Compare (0)</button>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Scripts: order matters -->
+  <script src="assets/js/products-fallback.js"></script>
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/store-extras.js"></script>
+  <script src="assets/js/store-extras2.js"></script>
+  <script src="assets/js/store-extras3.js"></script>
+  <script src="assets/js/store-extras4.js"></script>
+  <script src="assets/js/store-extras5.js"></script>
+  <script src="assets/js/store-extras6.js"></script>
+  <script src="assets/js/store-extras7.js"></script>
+  <script src="assets/js/store-extras8.js"></script>
+  <script src="assets/js/marketplace.js"></script>
+  <!-- PWA service worker registration (v2) -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+    }
+  </script>
+</body>
+</html>

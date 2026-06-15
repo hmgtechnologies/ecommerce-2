@@ -1,0 +1,240 @@
+{
+  "_comment": "Naija Mart demo catalog — 12 products showcasing all v3 fields.",
+  "products": [
+    {
+      "id": "p1",
+      "name": "Premium Ankara Fabric (6 yards)",
+      "price": 18000,
+      "oldPrice": 22000,
+      "category": "Fashion",
+      "description": "Vibrant, high-quality Ankara wax print. 6 yards. Colours that never fade — perfect for native wear, gowns and gifts.",
+      "image": "assets/images/products/ankara.jpg",
+      "images": [
+        "assets/images/products/ankara.jpg",
+        "assets/images/products/handbag.jpg"
+      ],
+      "stock": true,
+      "featured": true,
+      "qty": 25,
+      "sku": "FAS-ANK-001",
+      "variants": [
+        {
+          "name": "Length",
+          "options": [
+            "3 yards",
+            "6 yards",
+            "12 yards"
+          ]
+        }
+      ],
+      "created_at": "2026-06-10T10:00:00Z",
+      "vendor": "v1"
+    },
+    {
+      "id": "p2",
+      "name": "Wireless Earbuds Pro (BT 5.3)",
+      "price": 25000,
+      "oldPrice": 32000,
+      "category": "Electronics",
+      "description": "Bluetooth 5.3 earbuds with active noise cancellation, 24-hour battery and a compact charging case.",
+      "image": "assets/images/products/earbuds.jpg",
+      "stock": true,
+      "featured": true,
+      "qty": 8,
+      "sku": "ELE-EAR-002",
+      "variants": [
+        {
+          "name": "Colour",
+          "options": [
+            "White",
+            "Black"
+          ]
+        }
+      ],
+      "created_at": "2026-06-11T10:00:00Z",
+      "vendor": "v2"
+    },
+    {
+      "id": "p3",
+      "name": "Natural Shea Butter Cream 500ml",
+      "price": 6500,
+      "category": "Beauty",
+      "description": "100% natural shea butter blend. Deeply moisturising for face, body and hair. Unscented, all skin types.",
+      "image": "assets/images/products/sheabutter.jpg",
+      "stock": true,
+      "featured": false,
+      "qty": 60,
+      "sku": "BEA-SHE-003",
+      "created_at": "2026-06-09T10:00:00Z",
+      "vendor": "v3"
+    },
+    {
+      "id": "p4",
+      "name": "Handmade Leather Sandals",
+      "price": 14000,
+      "oldPrice": 17000,
+      "category": "Fashion",
+      "description": "Genuine leather, locally crafted. Durable, comfortable and stylish for everyday wear.",
+      "image": "assets/images/products/sandals.jpg",
+      "stock": true,
+      "featured": false,
+      "qty": 3,
+      "sku": "FAS-SAN-004",
+      "variants": [
+        {
+          "name": "Size",
+          "options": [
+            "40",
+            "41",
+            "42",
+            "43",
+            "44",
+            "45"
+          ]
+        }
+      ],
+      "created_at": "2026-06-08T10:00:00Z",
+      "vendor": "v1"
+    },
+    {
+      "id": "p5",
+      "name": "Fitness Smartwatch",
+      "price": 38000,
+      "oldPrice": 45000,
+      "category": "Electronics",
+      "description": "Heart-rate, step and sleep tracking, notifications, 7-day battery. Water-resistant.",
+      "image": "assets/images/products/smartwatch.jpg",
+      "stock": true,
+      "featured": true,
+      "qty": 12,
+      "sku": "ELE-WAT-005",
+      "variants": [
+        {
+          "name": "Strap",
+          "options": [
+            "Black",
+            "Blue",
+            "Pink"
+          ]
+        }
+      ],
+      "created_at": "2026-06-12T10:00:00Z",
+      "vendor": "v2"
+    },
+    {
+      "id": "p6",
+      "name": "Elegant Leather Handbag",
+      "price": 28000,
+      "category": "Fashion",
+      "description": "Spacious tan leather handbag with gold-tone hardware. Perfect for work and events.",
+      "image": "assets/images/products/handbag.jpg",
+      "stock": true,
+      "featured": false,
+      "qty": 7,
+      "sku": "FAS-BAG-006",
+      "created_at": "2026-06-07T10:00:00Z",
+      "vendor": "v1"
+    },
+    {
+      "id": "p7",
+      "name": "Pure Natural Honey 1L",
+      "price": 9000,
+      "oldPrice": 11000,
+      "category": "Groceries",
+      "description": "Raw, unprocessed honey sourced from local farms. Rich, golden and full of flavour.",
+      "image": "assets/images/products/honey.jpg",
+      "stock": true,
+      "featured": false,
+      "qty": 40,
+      "sku": "GRO-HON-007",
+      "created_at": "2026-06-06T10:00:00Z",
+      "vendor": "v3"
+    },
+    {
+      "id": "p8",
+      "name": "20,000mAh Power Bank",
+      "price": 16000,
+      "category": "Electronics",
+      "description": "Fast-charging power bank with dual USB output and LED indicator. Charge your phone 4–5 times.",
+      "image": "assets/images/products/powerbank.jpg",
+      "stock": true,
+      "featured": false,
+      "qty": 20,
+      "sku": "ELE-PWR-008",
+      "created_at": "2026-06-05T10:00:00Z",
+      "vendor": "v2"
+    },
+    {
+      "id": "p9",
+      "name": "Signature Perfume 100ml",
+      "price": 22000,
+      "oldPrice": 27000,
+      "category": "Beauty",
+      "description": "Long-lasting unisex fragrance with warm amber and citrus notes. Beautifully boxed.",
+      "image": "assets/images/products/perfume.jpg",
+      "stock": true,
+      "featured": true,
+      "qty": 15,
+      "sku": "BEA-PER-009",
+      "created_at": "2026-06-04T10:00:00Z",
+      "vendor": "v3"
+    },
+    {
+      "id": "p10",
+      "name": "Classic Sneakers",
+      "price": 24000,
+      "oldPrice": 30000,
+      "category": "Fashion",
+      "description": "Comfortable everyday sneakers with cushioned soles. White & red colourway.",
+      "image": "assets/images/products/sneakers.jpg",
+      "stock": true,
+      "featured": false,
+      "qty": 18,
+      "sku": "FAS-SNK-010",
+      "variants": [
+        {
+          "name": "Size",
+          "options": [
+            "39",
+            "40",
+            "41",
+            "42",
+            "43",
+            "44"
+          ]
+        }
+      ],
+      "created_at": "2026-06-03T10:00:00Z",
+      "vendor": "v1"
+    },
+    {
+      "id": "p11",
+      "name": "Powerful Kitchen Blender",
+      "price": 32000,
+      "oldPrice": 38000,
+      "category": "Home",
+      "description": "Heavy-duty blender with glass jug, ideal for smoothies, soups and grinding. Powerful motor, easy to clean.",
+      "image": "assets/images/products/blender.jpg",
+      "stock": true,
+      "featured": true,
+      "qty": 6,
+      "sku": "HOM-BLE-011",
+      "created_at": "2026-06-02T10:00:00Z",
+      "vendor": "v2"
+    },
+    {
+      "id": "p12",
+      "name": "African Black Soap (Pack of 3)",
+      "price": 4500,
+      "category": "Beauty",
+      "description": "Natural handmade black soap for clear, healthy skin. Pack of 3 bars. Great for all skin types.",
+      "image": "assets/images/products/soap.jpg",
+      "stock": true,
+      "featured": false,
+      "qty": 50,
+      "sku": "BEA-SOA-012",
+      "created_at": "2026-06-01T10:00:00Z",
+      "vendor": "v3"
+    }
+  ]
+}
